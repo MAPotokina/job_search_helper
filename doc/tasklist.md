@@ -6,7 +6,7 @@
 |-----------|----------|--------|-----------------|--------------|
 | 0 | Project Setup | ✅ Done | 2025-11-16 | ✅ |
 | 1 | Database & Models | ✅ Done | 2025-11-16 | ✅ |
-| 2 | Basic CRUD API | ⏳ Pending | - | ❌ |
+| 2 | Basic CRUD API | ✅ Done | 2025-11-16 | ✅ |
 | 3 | Frontend UI | ⏳ Pending | - | ❌ |
 | 4 | LLM: Extract Job Info | ⏳ Pending | - | ❌ |
 | 5 | LLM: Visa Sponsorship | ⏳ Pending | - | ❌ |
@@ -70,13 +70,13 @@
 **Цель:** CRUD операции для jobs (без LLM)
 
 ### Tasks
-- [ ] Создать `app/schemas.py` с Pydantic схемами
-- [ ] Реализовать `POST /api/jobs` (создание job вручную)
-- [ ] Реализовать `GET /api/jobs` (список всех jobs)
-- [ ] Реализовать `GET /api/jobs/{id}` (один job)
-- [ ] Реализовать `PUT /api/jobs/{id}` (обновление)
-- [ ] Реализовать `DELETE /api/jobs/{id}` (удаление)
-- [ ] Добавить автозаполнение дат при смене статуса
+- [x] Создать `app/schemas.py` с Pydantic схемами
+- [x] Реализовать `POST /api/jobs` (создание job вручную)
+- [x] Реализовать `GET /api/jobs` (список всех jobs)
+- [x] Реализовать `GET /api/jobs/{id}` (один job)
+- [x] Реализовать `PUT /api/jobs/{id}` (обновление)
+- [x] Реализовать `DELETE /api/jobs/{id}` (удаление)
+- [x] Добавить автозаполнение дат при смене статуса
 
 ### Test
 ```bash
