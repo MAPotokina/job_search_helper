@@ -15,7 +15,7 @@ from app.llm import analyze_job_complete, generate_cover_letter
 
 app = FastAPI(title="Job Search Helper")
 
-# Монтируем статические файлы
+# Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
@@ -28,21 +28,21 @@ async def startup_event():
 
 @app.get("/")
 async def serve_frontend():
-    """Раздача главной страницы"""
+    """Serve main page"""
     return FileResponse("app/static/index.html")
 
 
 @app.get("/stats")
 async def serve_stats():
-    """Раздача страницы статистики"""
+    """Serve statistics page"""
     return FileResponse("app/static/stats.html")
 
 
 @app.get("/api/health")
 async def health_check(db: Session = Depends(get_db)):
-    """Health check endpoint для проверки БД"""
+    """Health check endpoint to verify database connection"""
     try:
-        # Проверка подключения к БД
+        # Check database connection
         db.execute(text("SELECT 1"))
         return {"status": "ok", "database": "connected"}
     except Exception as e:
@@ -52,12 +52,12 @@ async def health_check(db: Session = Depends(get_db)):
 
 @app.get("/api/stats")
 async def get_stats(db: Session = Depends(get_db)):
-    """Статистика использования LLM"""
+    """LLM usage statistics"""
     from sqlalchemy import func
     from app.models import LLMLog
     from app.config import COST_PER_1K_TOKENS
     
-    # Общая статистика
+    # Overall statistics
     total_calls = db.query(func.count(LLMLog.id)).scalar()
     successful_calls = db.query(func.count(LLMLog.id)).filter(
         LLMLog.status == "success"
@@ -65,7 +65,7 @@ async def get_stats(db: Session = Depends(get_db)):
     total_tokens = db.query(func.sum(LLMLog.tokens_used)).scalar() or 0
     total_cost = (total_tokens / 1000) * COST_PER_1K_TOKENS
     
-    # Разбивка по функциям
+    # Breakdown by function
     stats_by_function = db.query(
         LLMLog.function_name,
         func.count(LLMLog.id).label("count"),
@@ -99,7 +99,7 @@ async def get_stats(db: Session = Depends(get_db)):
 
 @app.post("/api/generate-cover-letter/{job_id}", response_model=JobResponse)
 async def generate_cover_letter_endpoint(job_id: int, db: Session = Depends(get_db)):
-    """Генерация персонализированного cover letter"""
+    """Generate personalized cover letter"""
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -107,7 +107,7 @@ async def generate_cover_letter_endpoint(job_id: int, db: Session = Depends(get_
     if not job.job_description:
         raise HTTPException(status_code=400, detail="Job description is required")
     
-    # Читаем резюме и базовый шаблон
+    # Read resume and base template
     try:
         with open("templates/user_resume.txt", "r") as f:
             resume = f.read()
@@ -124,7 +124,7 @@ async def generate_cover_letter_endpoint(job_id: int, db: Session = Depends(get_
         company=job.company
     )
     
-    # Сохраняем результат
+    # Save result
     job.cover_letter = result.get("cover_letter")
     db.commit()
     db.refresh(job)
@@ -133,27 +133,27 @@ async def generate_cover_letter_endpoint(job_id: int, db: Session = Depends(get_
     return job
 
 
-# CRUD Endpoints для Jobs
+# CRUD Endpoints for Jobs
 
 
 @app.post("/api/jobs", response_model=JobResponse, status_code=201)
 async def create_job(job: JobCreate, db: Session = Depends(get_db)):
-    """Создание новой вакансии с автоматическим AI анализом"""
+    """Create new job with automatic AI analysis"""
     
-    # Если есть description, делаем комплексный анализ
+    # If description exists, do comprehensive analysis
     if job.job_description:
         try:
             with open("templates/user_resume.txt", "r") as f:
                 resume = f.read()
             
-            # Комплексный анализ: title, company, visa, match
+            # Comprehensive analysis: title, company, visa, match
             analysis = analyze_job_complete(job.job_description, resume)
             
-            # Если title/company не указаны, берем из анализа
+            # If title/company not specified, take from analysis
             title = job.title if job.title else analysis.get("title", "Unknown Position")
             company = job.company if job.company else analysis.get("company", "Unknown Company")
             
-            # Гарантируем правильный тип для has_visa_sponsorship (только bool или None)
+            # Ensure correct type for has_visa_sponsorship (only bool or None)
             visa_value = analysis.get("visa_sponsorship")
             if visa_value is True or visa_value == True:
                 has_visa = True
@@ -162,7 +162,7 @@ async def create_job(job: JobCreate, db: Session = Depends(get_db)):
             else:
                 has_visa = None
             
-            # Конвертируем dict в JSON строку если нужно
+            # Convert dict to JSON string if needed
             visa_analysis = analysis.get("visa_analysis")
             if isinstance(visa_analysis, dict):
                 visa_analysis = json.dumps(visa_analysis, ensure_ascii=False)
@@ -173,12 +173,12 @@ async def create_job(job: JobCreate, db: Session = Depends(get_db)):
                 match_analysis = json.dumps(match_analysis, ensure_ascii=False)
                 logger.warning(f"match_analysis was dict, converted to JSON string")
             
-            # Логируем что будет сохранено
+            # Log what will be saved
             logger.info(f"Saving to DB - visa_analysis length: {len(visa_analysis) if visa_analysis else 0} chars")
             logger.info(f"Saving to DB - visa_analysis preview: {visa_analysis[:200] if visa_analysis else 'None'}...")
             logger.info(f"Saving to DB - match_analysis length: {len(match_analysis) if match_analysis else 0} chars")
             
-            # Создаем job с результатами анализа
+            # Create job with analysis results
             db_job = Job(
                 title=title,
                 company=company,
@@ -210,7 +210,7 @@ async def create_job(job: JobCreate, db: Session = Depends(get_db)):
 
 @app.get("/api/jobs", response_model=List[JobResponse])
 async def get_jobs(db: Session = Depends(get_db)):
-    """Получить список всех вакансий"""
+    """Get list of all jobs"""
     jobs = db.query(Job).all()
     logger.info(f"GET /api/jobs | 200 OK | {len(jobs)} jobs returned")
     return jobs
@@ -218,7 +218,7 @@ async def get_jobs(db: Session = Depends(get_db)):
 
 @app.get("/api/jobs/{job_id}", response_model=JobResponse)
 async def get_job(job_id: int, db: Session = Depends(get_db)):
-    """Получить одну вакансию по ID"""
+    """Get single job by ID"""
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -227,12 +227,12 @@ async def get_job(job_id: int, db: Session = Depends(get_db)):
 
 @app.put("/api/jobs/{job_id}", response_model=JobResponse)
 async def update_job(job_id: int, job_update: JobUpdate, db: Session = Depends(get_db)):
-    """Обновить вакансию"""
+    """Update job"""
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
-    # Автозаполнение дат при смене статуса
+    # Auto-fill dates when status changes
     if job_update.status:
         if job_update.status == "applied" and not job.applied_date:
             job.applied_date = datetime.now()
@@ -241,10 +241,10 @@ async def update_job(job_id: int, job_update: JobUpdate, db: Session = Depends(g
         if job_update.status in ["offer", "rejected"] and not job.response_date:
             job.response_date = datetime.now()
             if job.applied_date:
-                job.days_to_response = (job.response_date - job.applied_date).days
-            logger.info(f"Job {job_id}: response_date and days_to_response set automatically")
+                    job.days_to_response = (job.response_date - job.applied_date).days
+                logger.info(f"Job {job_id}: response_date and days_to_response set automatically")
     
-    # Обновляем поля
+    # Update fields
     for field, value in job_update.dict(exclude_unset=True).items():
         setattr(job, field, value)
     
@@ -256,7 +256,7 @@ async def update_job(job_id: int, job_update: JobUpdate, db: Session = Depends(g
 
 @app.delete("/api/jobs/{job_id}", status_code=204)
 async def delete_job(job_id: int, db: Session = Depends(get_db)):
-    """Удалить вакансию"""
+    """Delete job"""
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")

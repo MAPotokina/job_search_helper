@@ -3,21 +3,21 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.config import DATABASE_URL, logger
 
-# Создаём engine для SQLite
+# Create engine for SQLite
 engine = create_engine(
     DATABASE_URL, 
-    connect_args={"check_same_thread": False}  # Нужно для SQLite
+    connect_args={"check_same_thread": False}  # Required for SQLite
 )
 
-# Фабрика сессий
+# Session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Базовый класс для моделей
+# Base class for models
 Base = declarative_base()
 
 
 def get_db():
-    """Dependency для получения сессии БД в FastAPI endpoints"""
+    """Dependency for getting database session in FastAPI endpoints"""
     db = SessionLocal()
     try:
         yield db
@@ -26,7 +26,7 @@ def get_db():
 
 
 def init_db():
-    """Создание всех таблиц в БД"""
+    """Create all tables in database"""
     Base.metadata.create_all(bind=engine)
     logger.info("Database tables created successfully")
 

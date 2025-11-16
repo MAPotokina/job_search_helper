@@ -4,10 +4,10 @@ from app.database import Base
 
 
 class Job(Base):
-    """Модель вакансии"""
+    """Job model"""
     __tablename__ = "jobs"
     
-    # Основные поля
+    # Main fields
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
     company = Column(String(200), nullable=False)
@@ -33,7 +33,7 @@ class Job(Base):
 
 
 class LLMLog(Base):
-    """Модель для логирования LLM вызовов"""
+    """Model for logging LLM calls"""
     __tablename__ = "llm_logs"
     
     id = Column(Integer, primary_key=True, index=True)

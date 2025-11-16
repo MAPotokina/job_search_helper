@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class JobCreate(BaseModel):
-    """Схема для создания вакансии"""
+    """Schema for creating a job"""
     title: str
     company: str
     job_url: Optional[str] = None
@@ -13,7 +13,7 @@ class JobCreate(BaseModel):
 
 
 class JobUpdate(BaseModel):
-    """Схема для обновления вакансии (все поля опциональные)"""
+    """Schema for updating a job (all fields optional)"""
     title: Optional[str] = None
     company: Optional[str] = None
     job_url: Optional[str] = None
@@ -24,7 +24,7 @@ class JobUpdate(BaseModel):
 
 
 class JobResponse(BaseModel):
-    """Схема ответа с полной информацией о вакансии"""
+    """Response schema with full job information"""
     id: int
     title: str
     company: str

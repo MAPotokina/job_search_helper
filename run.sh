@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Активируем виртуальное окружение
+# Activate virtual environment
 source venv/bin/activate
 
-# Проверяем наличие .env файла
+# Check if .env file exists
 if [ ! -f .env ]; then
     echo "Error: .env file not found!"
     echo "Please create .env file with OPENAI_API_KEY"
@@ -11,7 +11,7 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-# Запускаем FastAPI приложение
+# Start FastAPI application
 echo "Starting Job Search Helper..."
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 

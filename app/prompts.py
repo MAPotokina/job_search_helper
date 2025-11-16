@@ -1,5 +1,5 @@
 """
-Промпты для LLM функций
+Prompts for LLM functions
 """
 
 PROMPTS = {

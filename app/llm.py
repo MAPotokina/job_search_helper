@@ -17,13 +17,13 @@ from app.database import SessionLocal
 from app.models import LLMLog
 
 
-# Инициализация OpenAI клиента
+# Initialize OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 def log_llm_call(function_name: str, status: str, execution_time: float, 
                  tokens_used: int = None, error_message: str = None):
-    """Логирование LLM вызова в БД"""
+    """Log LLM call to database"""
     db = SessionLocal()
     try:
         log = LLMLog(
@@ -40,10 +40,10 @@ def log_llm_call(function_name: str, status: str, execution_time: float,
 
 
 def analyze_job_complete(job_description: str, resume: str) -> dict:
-    """Комплексный анализ вакансии: извлечение инфо + спонсорство + соответствие"""
+    """Comprehensive job analysis: extract info + sponsorship + resume match"""
     start_time = time.time()
     
-    # Обрезаем длинные тексты
+    # Truncate long texts
     if len(job_description) > MAX_JOB_DESCRIPTION_LENGTH:
         job_description = job_description[:MAX_JOB_DESCRIPTION_LENGTH]
         logger.info(f"Job description truncated to {MAX_JOB_DESCRIPTION_LENGTH} chars")
@@ -68,35 +68,35 @@ def analyze_job_complete(job_description: str, resume: str) -> dict:
         tokens_used = response.usage.total_tokens
         execution_time = time.time() - start_time
         
-        # Логируем сырой ответ для отладки
+        # Log raw response for debugging
         logger.info(f"Raw LLM response (first 500 chars): {result_text[:500]}")
         
-        # Пытаемся распарсить как JSON
+        # Try to parse as JSON
         try:
             result = json.loads(result_text)
         except json.JSONDecodeError as json_error:
-            # Если не удалось, возможно LLM использовал настоящие переносы вместо \\n
+            # If failed, maybe LLM used real newlines instead of \\n
             logger.warning(f"First JSON parse failed: {json_error}, trying to fix newlines")
             logger.info(f"Problematic area: ...{result_text[max(0, json_error.pos-50):json_error.pos+50]}...")
             
-            # Используем json.dumps для правильного экранирования строковых значений
-            # Но сначала нужно найти и зафиксировать проблемные строки
-            # Простой подход: заменяем только опасные control chars, сохраняя переносы как \\n
+            # Use json.dumps for proper string value escaping
+            # But first need to find and fix problematic strings
+            # Simple approach: replace only dangerous control chars, keeping newlines as \\n
             result_text_fixed = result_text
-            # Заменяем настоящие переносы на escaped версии
-            result_text_fixed = result_text_fixed.replace('\r\n', '\\n')  # Windows переносы
-            result_text_fixed = result_text_fixed.replace('\n', '\\n')    # Unix переносы  
-            result_text_fixed = result_text_fixed.replace('\r', '\\n')    # Mac переносы
-            result_text_fixed = result_text_fixed.replace('\t', ' ')      # Табы в пробелы
+            # Replace real newlines with escaped versions
+            result_text_fixed = result_text_fixed.replace('\r\n', '\\n')  # Windows newlines
+            result_text_fixed = result_text_fixed.replace('\n', '\\n')    # Unix newlines
+            result_text_fixed = result_text_fixed.replace('\r', '\\n')    # Mac newlines
+            result_text_fixed = result_text_fixed.replace('\t', ' ')      # Tabs to spaces
             
             logger.info(f"Fixed text (first 500 chars): {result_text_fixed[:500]}")
             result = json.loads(result_text_fixed)
         
-        # Исправляем тип has_visa_sponsorship - должен быть bool или None, не строка
+        # Fix has_visa_sponsorship type - must be bool or None, not string
         visa_val = result.get("visa_sponsorship")
         logger.info(f"Raw visa_sponsorship value: {visa_val}, type: {type(visa_val)}")
         
-        # Нормализуем значение в Python bool или None
+        # Normalize value to Python bool or None
         if visa_val is None or visa_val == "null" or visa_val == "None" or visa_val == "":
             result["visa_sponsorship"] = None
         elif visa_val is True or visa_val == "true" or visa_val == "True" or visa_val == 1:
@@ -109,7 +109,7 @@ def analyze_job_complete(job_description: str, resume: str) -> dict:
         
         logger.info(f"Normalized visa_sponsorship: {result['visa_sponsorship']}, type: {type(result['visa_sponsorship'])}")
         
-        # Логируем длину анализов для отладки
+        # Log analysis lengths for debugging
         visa_analysis_len = len(result.get("visa_analysis", "")) if result.get("visa_analysis") else 0
         match_analysis_len = len(result.get("match_analysis", "")) if result.get("match_analysis") else 0
         logger.info(f"Analysis lengths - visa: {visa_analysis_len} chars, match: {match_analysis_len} chars")
@@ -155,10 +155,10 @@ def analyze_job_complete(job_description: str, resume: str) -> dict:
 
 def generate_cover_letter(resume: str, template: str, job_description: str, 
                          job_title: str, company: str) -> dict:
-    """Генерация персонализированного cover letter"""
+    """Generate personalized cover letter"""
     start_time = time.time()
     
-    # Обрезаем длинные тексты
+    # Truncate long texts
     if len(resume) > MAX_RESUME_LENGTH:
         resume = resume[:MAX_RESUME_LENGTH]
         logger.info(f"Resume truncated to {MAX_RESUME_LENGTH} chars")
@@ -186,8 +186,8 @@ def generate_cover_letter(resume: str, template: str, job_description: str,
         tokens_used = response.usage.total_tokens
         execution_time = time.time() - start_time
         
-        # Для cover letter возвращаем просто текст (не JSON)
-        # Логируем успех
+        # For cover letter return just text (not JSON)
+        # Log success
         log_llm_call("generate_cover_letter", "success", execution_time, tokens_used)
         logger.info(f"LLM | generate_cover_letter | SUCCESS | {execution_time:.2f}s | {tokens_used} tokens")
         
