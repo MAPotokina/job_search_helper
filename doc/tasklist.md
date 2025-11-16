@@ -9,7 +9,7 @@
 | 2 | Basic CRUD API | ✅ Done | 2025-11-16 | ✅ |
 | 3 | Frontend UI | ✅ Done | 2025-11-16 | ✅ |
 | 4 | LLM: Extract Job Info | ✅ Done | 2025-11-16 | ✅ |
-| 5 | LLM: Visa Sponsorship | ⏳ Pending | - | ❌ |
+| 5 | LLM: Visa Sponsorship | ✅ Done | 2025-11-16 | ✅ |
 | 6 | LLM: Resume Match | ⏳ Pending | - | ❌ |
 | 7 | LLM: Cover Letter | ⏳ Pending | - | ❌ |
 | 8 | Statistics & Monitoring | ⏳ Pending | - | ❌ |
@@ -152,12 +152,12 @@ curl -X PUT http://localhost:8000/api/jobs/1 \
 **Цель:** Анализ visa sponsorship через LLM
 
 ### Tasks
-- [ ] Добавить промпт `visa_sponsorship` в `prompts.py`
-- [ ] Добавить функцию `analyze_visa_sponsorship()` в `llm.py`
-- [ ] Создать endpoint `POST /api/analyze-sponsorship`
-- [ ] Добавить кнопку "Check Sponsorship" в UI
-- [ ] Показывать результат (badge или icon)
-- [ ] Сохранять результат в БД
+- [x] Добавить промпт `visa_sponsorship` в `prompts.py`
+- [x] Добавить функцию `analyze_visa_sponsorship()` в `llm.py`
+- [x] Создать endpoint `POST /api/analyze-sponsorship`
+- [x] Добавить кнопку "Check Sponsorship" в UI
+- [x] Показывать результат (badge или icon)
+- [x] Сохранять результат в БД
 
 ### Test
 ```bash

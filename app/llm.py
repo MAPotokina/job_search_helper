@@ -77,13 +77,55 @@ def extract_job_info(job_description: str) -> dict:
         logger.error(f"LLM | extract_job_info | ERROR | {execution_time:.2f}s | {error_msg}")
         
         return {"title": "Unknown Position", "company": "Unknown Company"}
+
+
+def analyze_visa_sponsorship(job_description: str) -> dict:
+    """Анализ наличия visa sponsorship в описании вакансии"""
+    start_time = time.time()
+    
+    # Обрезаем длинный текст
+    if len(job_description) > MAX_JOB_DESCRIPTION_LENGTH:
+        job_description = job_description[:MAX_JOB_DESCRIPTION_LENGTH]
+        logger.info(f"Job description truncated to {MAX_JOB_DESCRIPTION_LENGTH} chars")
+    
+    try:
+        prompt = PROMPTS["visa_sponsorship"].format(job_description=job_description)
+        
+        response = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=OPENAI_TEMPERATURE,
+            max_tokens=OPENAI_MAX_TOKENS
+        )
+        
+        result_text = response.choices[0].message.content.strip()
+        tokens_used = response.usage.total_tokens
+        execution_time = time.time() - start_time
+        
+        # Парсим JSON ответ
+        result = json.loads(result_text)
+        
+        # Логируем успех
+        log_llm_call("analyze_visa_sponsorship", "success", execution_time, tokens_used)
+        logger.info(f"LLM | analyze_visa_sponsorship | SUCCESS | {execution_time:.2f}s | {tokens_used} tokens")
+        
+        return result
+        
+    except json.JSONDecodeError as e:
+        execution_time = time.time() - start_time
+        error_msg = f"JSON parsing error: {str(e)}"
+        
+        log_llm_call("analyze_visa_sponsorship", "error", execution_time, error_message=error_msg)
+        logger.error(f"LLM | analyze_visa_sponsorship | ERROR | {execution_time:.2f}s | {error_msg}")
+        
+        return {"has_sponsorship": None, "analysis": "Unable to determine"}
         
     except Exception as e:
         execution_time = time.time() - start_time
         error_msg = str(e)
         
-        log_llm_call("extract_job_info", "error", execution_time, error_message=error_msg)
-        logger.error(f"LLM | extract_job_info | ERROR | {execution_time:.2f}s | {error_msg}")
+        log_llm_call("analyze_visa_sponsorship", "error", execution_time, error_message=error_msg)
+        logger.error(f"LLM | analyze_visa_sponsorship | ERROR | {execution_time:.2f}s | {error_msg}")
         
-        return {"title": "Unknown Position", "company": "Unknown Company"}
+        return {"has_sponsorship": None, "analysis": "Unable to determine"}
 

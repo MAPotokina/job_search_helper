@@ -10,7 +10,7 @@ from app.config import logger
 from app.database import init_db, get_db
 from app.models import Job
 from app.schemas import JobCreate, JobUpdate, JobResponse
-from app.llm import extract_job_info
+from app.llm import extract_job_info, analyze_visa_sponsorship
 
 app = FastAPI(title="Job Search Helper")
 
@@ -56,6 +56,28 @@ async def extract_job_info_endpoint(request: dict):
     
     result = extract_job_info(job_description)
     return result
+
+
+@app.post("/api/analyze-sponsorship/{job_id}", response_model=JobResponse)
+async def analyze_sponsorship(job_id: int, db: Session = Depends(get_db)):
+    """Анализ visa sponsorship для вакансии"""
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    if not job.job_description:
+        raise HTTPException(status_code=400, detail="Job description is required")
+    
+    result = analyze_visa_sponsorship(job.job_description)
+    
+    # Сохраняем результат в БД
+    job.has_visa_sponsorship = result.get("has_sponsorship")
+    job.sponsorship_analysis = result.get("analysis")
+    db.commit()
+    db.refresh(job)
+    
+    logger.info(f"POST /api/analyze-sponsorship/{job_id} | Sponsorship: {job.has_visa_sponsorship}")
+    return job
 
 
 # CRUD Endpoints для Jobs

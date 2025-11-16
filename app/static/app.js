@@ -20,7 +20,7 @@ function renderJobs(jobs) {
     const tbody = document.getElementById('jobsTableBody');
     
     if (jobs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No jobs yet. Add your first job above!</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No jobs yet. Add your first job above!</td></tr>';
         return;
     }
     
@@ -28,6 +28,13 @@ function renderJobs(jobs) {
         <tr>
             <td><strong>${escapeHtml(job.title)}</strong></td>
             <td>${escapeHtml(job.company)}</td>
+            <td>
+                ${job.has_visa_sponsorship === true 
+                    ? '<span class="badge badge-yes">✓ Visa</span>' 
+                    : job.has_visa_sponsorship === false 
+                    ? '<span class="badge badge-no">✗ No Visa</span>' 
+                    : '<button onclick="checkSponsorship(' + job.id + ')" class="btn-check">Check Visa</button>'}
+            </td>
             <td>
                 <select onchange="updateStatus(${job.id}, this.value)" class="status-${job.status}">
                     <option value="new" ${job.status === 'new' ? 'selected' : ''}>New</option>
@@ -164,6 +171,24 @@ async function deleteJob(jobId) {
     } catch (error) {
         console.error('Error deleting job:', error);
         alert('Error deleting job');
+    }
+}
+
+// Проверка visa sponsorship
+async function checkSponsorship(jobId) {
+    try {
+        const response = await fetch(`/api/analyze-sponsorship/${jobId}`, {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            loadJobs();
+        } else {
+            alert('Error analyzing sponsorship');
+        }
+    } catch (error) {
+        console.error('Error checking sponsorship:', error);
+        alert('Error analyzing sponsorship');
     }
 }
 
