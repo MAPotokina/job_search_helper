@@ -8,7 +8,7 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = "gpt-3.5-turbo"
 OPENAI_TEMPERATURE = 0.5  # Повышено для более детального анализа
-OPENAI_MAX_TOKENS = 1500
+OPENAI_MAX_TOKENS = 2500
 OPENAI_TIMEOUT = 30
 
 # Database

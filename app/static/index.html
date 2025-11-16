@@ -37,18 +37,54 @@
         <!-- Таблица jobs -->
         <div class="jobs-list">
             <h2>My Jobs (<span id="jobCount">0</span>)</h2>
+            
+            <!-- Панель фильтров и сортировки -->
+            <div class="filters-panel">
+                <div class="filter-section">
+                    <span class="filter-label">Status:</span>
+                    <div class="filter-chips">
+                        <button class="chip" data-filter="status" data-value="new">New</button>
+                        <button class="chip" data-filter="status" data-value="applied">Applied</button>
+                        <button class="chip" data-filter="status" data-value="interview">Interview</button>
+                        <button class="chip" data-filter="status" data-value="offer">Offer</button>
+                        <button class="chip" data-filter="status" data-value="rejected">Rejected</button>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <span class="filter-label">Visa:</span>
+                    <div class="filter-chips">
+                        <button class="chip" data-filter="visa" data-value="true">✓ Yes</button>
+                        <button class="chip" data-filter="visa" data-value="false">✗ No</button>
+                        <button class="chip" data-filter="visa" data-value="null">N/A</button>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <span class="filter-label">Match:</span>
+                    <div class="filter-chips">
+                        <button class="chip" data-filter="match" data-value="80">≥80%</button>
+                        <button class="chip" data-filter="match" data-value="60">≥60%</button>
+                        <button class="chip" data-filter="match" data-value="40">≥40%</button>
+                        <button class="chip" data-filter="match" data-value="0"><40%</button>
+                    </div>
+                </div>
+                
+                <button class="btn-reset" onclick="resetFilters()">🔄 Reset Filters</button>
+            </div>
+            
             <div class="table-container">
                 <table id="jobsTable">
                     <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>Company</th>
-                            <th>Visa Sponsorship</th>
-                            <th>Resume Match</th>
-                            <th>Status</th>
-                            <th>Applied Date</th>
-                            <th>Response Date</th>
-                            <th>Days to Response</th>
+                            <th class="sortable" data-sort="title">Title <span class="sort-arrow"></span></th>
+                            <th class="sortable" data-sort="company">Company <span class="sort-arrow"></span></th>
+                            <th class="sortable" data-sort="visa">Visa Sponsorship <span class="sort-arrow"></span></th>
+                            <th class="sortable" data-sort="match">Resume Match <span class="sort-arrow"></span></th>
+                            <th class="sortable" data-sort="status">Status <span class="sort-arrow"></span></th>
+                            <th class="sortable" data-sort="applied_date">Applied Date <span class="sort-arrow"></span></th>
+                            <th class="sortable" data-sort="response_date">Response Date <span class="sort-arrow"></span></th>
+                            <th class="sortable" data-sort="days">Days to Response <span class="sort-arrow"></span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>

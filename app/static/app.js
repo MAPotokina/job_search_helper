@@ -1,3 +1,60 @@
+// Global state for filtering and sorting
+let allJobs = []; // Полный список jobs
+let activeFilters = {
+    status: [],
+    visa: [],
+    match: []
+};
+let sortConfig = {
+    field: null,
+    direction: 'asc'
+};
+
+// Load filters from localStorage on startup
+function loadFiltersFromStorage() {
+    const saved = localStorage.getItem('jobFilters');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            activeFilters = parsed.filters || activeFilters;
+            sortConfig = parsed.sort || sortConfig;
+            applyFilterUIState();
+            applySortUIState();
+        } catch (e) {
+            console.error('Error loading filters from storage:', e);
+        }
+    }
+}
+
+// Save filters to localStorage
+function saveFiltersToStorage() {
+    localStorage.setItem('jobFilters', JSON.stringify({
+        filters: activeFilters,
+        sort: sortConfig
+    }));
+}
+
+// Apply filter UI state from loaded data
+function applyFilterUIState() {
+    document.querySelectorAll('.chip').forEach(chip => {
+        const filterType = chip.dataset.filter;
+        const value = chip.dataset.value;
+        if (activeFilters[filterType] && activeFilters[filterType].includes(value)) {
+            chip.classList.add('active');
+        }
+    });
+}
+
+// Apply sort UI state from loaded data
+function applySortUIState() {
+    if (sortConfig.field) {
+        const th = document.querySelector(`th[data-sort="${sortConfig.field}"]`);
+        if (th) {
+            th.classList.add(`sort-${sortConfig.direction}`);
+        }
+    }
+}
+
 // Toast notification system
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
@@ -31,26 +88,157 @@ function hideLoading(button) {
 async function loadJobs() {
     try {
         const response = await fetch('/api/jobs');
-        const jobs = await response.json();
-        renderJobs(jobs);
-        updateJobCount(jobs.length);
+        allJobs = await response.json();
+        applyFiltersAndSort();
     } catch (error) {
         console.error('Error loading jobs:', error);
         showToast('❌ Error loading jobs', 'error');
     }
 }
 
+// Apply filters and sorting
+function applyFiltersAndSort() {
+    let filtered = filterJobs(allJobs);
+    let sorted = sortJobs(filtered);
+    renderJobs(sorted);
+    updateJobCount(filtered.length, allJobs.length);
+}
+
 // Обновление счётчика jobs
-function updateJobCount(count) {
-    document.getElementById('jobCount').textContent = count;
+function updateJobCount(filtered, total) {
+    const countEl = document.getElementById('jobCount');
+    if (filtered === total) {
+        countEl.textContent = total;
+    } else {
+        countEl.textContent = `${filtered} / ${total}`;
+    }
+}
+
+// Filter jobs based on active filters
+function filterJobs(jobs) {
+    console.log('Filtering', jobs.length, 'jobs with filters:', activeFilters);
+    
+    const filtered = jobs.filter(job => {
+        // Filter by status
+        if (activeFilters.status.length > 0) {
+            if (!activeFilters.status.includes(job.status)) {
+                console.log(`Job "${job.title}" filtered out by status: ${job.status} not in`, activeFilters.status);
+                return false;
+            }
+        }
+        
+        // Filter by visa
+        if (activeFilters.visa.length > 0) {
+            const visaValue = String(job.has_visa_sponsorship);
+            if (!activeFilters.visa.includes(visaValue)) {
+                console.log(`Job "${job.title}" filtered out by visa: ${visaValue} not in`, activeFilters.visa);
+                return false;
+            }
+        }
+        
+        // Filter by match percentage
+        if (activeFilters.match.length > 0) {
+            const matchPct = job.resume_match_percentage || 0;
+            let matchesFilter = false;
+            
+            for (const threshold of activeFilters.match) {
+                const thresholdNum = parseInt(threshold);
+                if (thresholdNum === 0) {
+                    // <40%
+                    if (matchPct < 40) matchesFilter = true;
+                } else if (matchPct >= thresholdNum) {
+                    matchesFilter = true;
+                }
+            }
+            
+            if (!matchesFilter) {
+                console.log(`Job "${job.title}" filtered out by match: ${matchPct}% doesn't match thresholds`, activeFilters.match);
+                return false;
+            }
+        }
+        
+        return true;
+    });
+    
+    console.log('Filtered result:', filtered.length, 'jobs remaining');
+    return filtered;
+}
+
+// Sort jobs based on sort config
+function sortJobs(jobs) {
+    if (!sortConfig.field) return jobs;
+    
+    const sorted = [...jobs].sort((a, b) => {
+        let aVal, bVal;
+        
+        switch (sortConfig.field) {
+            case 'title':
+            case 'company':
+                aVal = (a[sortConfig.field] || '').toLowerCase();
+                bVal = (b[sortConfig.field] || '').toLowerCase();
+                break;
+            
+            case 'visa':
+                // Yes > N/A > No
+                const visaOrder = { 'true': 3, 'null': 2, 'false': 1 };
+                aVal = visaOrder[String(a.has_visa_sponsorship)] || 0;
+                bVal = visaOrder[String(b.has_visa_sponsorship)] || 0;
+                break;
+            
+            case 'match':
+                aVal = a.resume_match_percentage || 0;
+                bVal = b.resume_match_percentage || 0;
+                break;
+            
+            case 'status':
+                // New → Applied → Interview → Offer/Rejected
+                const statusOrder = { 'new': 1, 'applied': 2, 'interview': 3, 'offer': 4, 'rejected': 5 };
+                aVal = statusOrder[a.status] || 0;
+                bVal = statusOrder[b.status] || 0;
+                break;
+            
+            case 'applied_date':
+            case 'response_date':
+                aVal = a[sortConfig.field] ? new Date(a[sortConfig.field]).getTime() : 0;
+                bVal = b[sortConfig.field] ? new Date(b[sortConfig.field]).getTime() : 0;
+                break;
+            
+            case 'days':
+                aVal = a.days_to_response || 0;
+                bVal = b.days_to_response || 0;
+                break;
+            
+            default:
+                return 0;
+        }
+        
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+    
+    return sorted;
 }
 
 // Отрисовка jobs в таблице
 function renderJobs(jobs) {
     const tbody = document.getElementById('jobsTableBody');
     
+    console.log('Rendering jobs:', jobs.length, 'filtered from', allJobs.length, 'total');
+    console.log('Active filters:', activeFilters);
+    console.log('Sort config:', sortConfig);
+    
     if (jobs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No jobs yet. Add your first job above!</td></tr>';
+        // Показываем разное сообщение в зависимости от того, есть ли фильтры
+        const hasFilters = activeFilters.status.length > 0 || 
+                          activeFilters.visa.length > 0 || 
+                          activeFilters.match.length > 0;
+        
+        const message = hasFilters 
+            ? 'No jobs match current filters. Try adjusting your filters.'
+            : 'No jobs yet. Add your first job above!';
+        
+        tbody.innerHTML = `<tr><td colspan="9" class="empty-state">${message}</td></tr>`;
         return;
     }
     
@@ -285,6 +473,96 @@ document.addEventListener('mouseover', function(e) {
     }
 });
 
-// Загрузка jobs при старте страницы
+// Handle filter chip clicks
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('chip')) {
+        const filterType = e.target.dataset.filter;
+        const value = e.target.dataset.value;
+        
+        console.log('Chip clicked:', filterType, '=', value);
+        
+        // Toggle chip active state
+        e.target.classList.toggle('active');
+        
+        const isActive = e.target.classList.contains('active');
+        console.log('Chip is now:', isActive ? 'active' : 'inactive');
+        
+        // Update activeFilters
+        if (isActive) {
+            if (!activeFilters[filterType].includes(value)) {
+                activeFilters[filterType].push(value);
+            }
+        } else {
+            activeFilters[filterType] = activeFilters[filterType].filter(v => v !== value);
+        }
+        
+        console.log('Updated filters:', activeFilters);
+        
+        // Save and apply
+        saveFiltersToStorage();
+        applyFiltersAndSort();
+    }
+});
+
+// Handle sortable header clicks
+document.addEventListener('click', function(e) {
+    const th = e.target.closest('th.sortable');
+    if (th) {
+        const field = th.dataset.sort;
+        
+        // Remove sort classes from all headers
+        document.querySelectorAll('th.sortable').forEach(header => {
+            header.classList.remove('sort-asc', 'sort-desc');
+        });
+        
+        // Toggle sort direction
+        if (sortConfig.field === field) {
+            sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortConfig.field = field;
+            sortConfig.direction = 'asc';
+        }
+        
+        // Add sort class to clicked header
+        th.classList.add(`sort-${sortConfig.direction}`);
+        
+        // Save and apply
+        saveFiltersToStorage();
+        applyFiltersAndSort();
+    }
+});
+
+// Reset all filters
+function resetFilters() {
+    // Clear filter state
+    activeFilters = {
+        status: [],
+        visa: [],
+        match: []
+    };
+    sortConfig = {
+        field: null,
+        direction: 'asc'
+    };
+    
+    // Clear UI
+    document.querySelectorAll('.chip').forEach(chip => {
+        chip.classList.remove('active');
+    });
+    document.querySelectorAll('th.sortable').forEach(header => {
+        header.classList.remove('sort-asc', 'sort-desc');
+    });
+    
+    // Save and apply
+    saveFiltersToStorage();
+    applyFiltersAndSort();
+    showToast('✅ Filters reset', 'info');
+}
+
+// Загрузка jobs и фильтров при старте страницы
+console.log('=== Job Search Helper - Filters & Sorting Loaded ===');
+console.log('Initial state:', { activeFilters, sortConfig });
+loadFiltersFromStorage();
+console.log('After loading from storage:', { activeFilters, sortConfig });
 loadJobs();
 
