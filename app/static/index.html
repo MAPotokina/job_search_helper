@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Search Helper</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Job Search Helper</h1>
+        
+        <!-- Форма добавления job -->
+        <div class="add-job-form">
+            <h2>Add New Job</h2>
+            <form id="jobForm">
+                <div class="form-group">
+                    <input type="text" id="title" placeholder="Job Title *" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="company" placeholder="Company *" required>
+                </div>
+                <div class="form-group">
+                    <input type="url" id="jobUrl" placeholder="Job URL">
+                </div>
+                <div class="form-group">
+                    <textarea id="description" placeholder="Job Description" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Add Job</button>
+            </form>
+        </div>
+        
+        <!-- Таблица jobs -->
+        <div class="jobs-list">
+            <h2>My Jobs (<span id="jobCount">0</span>)</h2>
+            <div class="table-container">
+                <table id="jobsTable">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Company</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                            <th>Response Date</th>
+                            <th>Days to Response</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobsTableBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">No jobs yet. Add your first job above!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/app.js"></script>
+</body>
+</html>
+

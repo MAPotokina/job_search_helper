@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from typing import List
@@ -11,6 +13,9 @@ from app.schemas import JobCreate, JobUpdate, JobResponse
 
 app = FastAPI(title="Job Search Helper")
 
+# Монтируем статические файлы
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -20,8 +25,9 @@ async def startup_event():
 
 
 @app.get("/")
-async def root():
-    return {"message": "Job Search Helper API"}
+async def serve_frontend():
+    """Раздача главной страницы"""
+    return FileResponse("app/static/index.html")
 
 
 @app.get("/api/health")

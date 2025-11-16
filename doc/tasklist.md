@@ -7,7 +7,7 @@
 | 0 | Project Setup | ✅ Done | 2025-11-16 | ✅ |
 | 1 | Database & Models | ✅ Done | 2025-11-16 | ✅ |
 | 2 | Basic CRUD API | ✅ Done | 2025-11-16 | ✅ |
-| 3 | Frontend UI | ⏳ Pending | - | ❌ |
+| 3 | Frontend UI | ✅ Done | 2025-11-16 | ✅ |
 | 4 | LLM: Extract Job Info | ⏳ Pending | - | ❌ |
 | 5 | LLM: Visa Sponsorship | ⏳ Pending | - | ❌ |
 | 6 | LLM: Resume Match | ⏳ Pending | - | ❌ |
@@ -103,14 +103,14 @@ curl -X PUT http://localhost:8000/api/jobs/1 \
 **Цель:** Простой веб-интерфейс для управления jobs
 
 ### Tasks
-- [ ] Создать `app/static/index.html` (главная страница)
-- [ ] Создать `app/static/style.css` (базовые стили)
-- [ ] Создать `app/static/app.js` (логика UI)
-- [ ] Форма добавления job (пока все поля вручную)
-- [ ] Таблица со списком jobs
-- [ ] Кнопки редактирования и удаления
-- [ ] Dropdown для смены статуса
-- [ ] Настроить StaticFiles в FastAPI
+- [x] Создать `app/static/index.html` (главная страница)
+- [x] Создать `app/static/style.css` (базовые стили)
+- [x] Создать `app/static/app.js` (логика UI)
+- [x] Форма добавления job (пока все поля вручную)
+- [x] Таблица со списком jobs
+- [x] Кнопки редактирования и удаления
+- [x] Dropdown для смены статуса
+- [x] Настроить StaticFiles в FastAPI
 
 ### Test
 ```bash
