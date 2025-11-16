@@ -60,15 +60,15 @@ function renderJobs(jobs) {
             <td>${escapeHtml(job.company)}</td>
             <td>
                 ${job.has_visa_sponsorship === true 
-                    ? '<span class="badge badge-yes">✓ Visa</span>' 
+                    ? '<span class="badge badge-yes">✓ Yes</span>' 
                     : job.has_visa_sponsorship === false 
-                    ? '<span class="badge badge-no">✗ No Visa</span>' 
-                    : '<button onclick="checkSponsorship(' + job.id + ', this)" class="btn-check">Check Visa</button>'}
+                    ? '<span class="badge badge-no">✗ No</span>' 
+                    : '<span class="badge badge-na">N/A</span>'}
             </td>
             <td>
                 ${job.resume_match_percentage !== null
                     ? '<span class="match-badge match-' + getMatchClass(job.resume_match_percentage) + '">' + job.resume_match_percentage + '%</span>'
-                    : '<button onclick="analyzeMatch(' + job.id + ', this)" class="btn-check">Analyze Match</button>'}
+                    : '<span class="badge badge-na">N/A</span>'}
             </td>
             <td>
                 <select onchange="updateStatus(${job.id}, this.value)" class="status-${job.status}">
@@ -113,42 +113,20 @@ document.getElementById('jobForm').addEventListener('submit', async (e) => {
     
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const description = document.getElementById('description').value;
-    let title = document.getElementById('title').value;
-    let company = document.getElementById('company').value;
+    const title = document.getElementById('title').value;
+    const company = document.getElementById('company').value;
     
-    showLoading(submitBtn);
-    
-    // Если нет title/company, но есть description - извлекаем через LLM
-    if (description && (!title || !company)) {
-        try {
-            const extractResponse = await fetch('/api/extract-job-info', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({job_description: description})
-            });
-            
-            if (extractResponse.ok) {
-                const extracted = await extractResponse.json();
-                if (!title) title = extracted.title;
-                if (!company) company = extracted.company;
-                showToast('✨ Job info extracted automatically', 'info');
-            }
-        } catch (error) {
-            console.error('Error extracting job info:', error);
-            showToast('⚠️ Auto-extraction failed, please fill manually', 'error');
-        }
-    }
-    
-    // Проверяем что есть минимум title и company
-    if (!title || !company) {
-        showToast('❌ Title and Company are required', 'error');
-        hideLoading(submitBtn);
+    // Проверяем что есть хотя бы description
+    if (!description && (!title || !company)) {
+        showToast('❌ Please provide at least a job description', 'error');
         return;
     }
     
+    showLoading(submitBtn);
+    
     const job = {
-        title: title,
-        company: company,
+        title: title || "",
+        company: company || "",
         job_url: document.getElementById('jobUrl').value,
         job_description: description,
         status: 'new'
@@ -162,11 +140,12 @@ document.getElementById('jobForm').addEventListener('submit', async (e) => {
         });
         
         if (response.ok) {
-            showToast('✅ Job added successfully!', 'success');
+            showToast('✅ Job added and analyzed!', 'success');
             e.target.reset();
             loadJobs();
         } else {
-            showToast('❌ Error creating job', 'error');
+            const error = await response.json();
+            showToast('❌ Error: ' + (error.detail || 'Unknown error'), 'error');
         }
     } catch (error) {
         console.error('Error creating job:', error);
@@ -225,53 +204,6 @@ function getMatchClass(percentage) {
     if (percentage >= 70) return 'high';
     if (percentage >= 40) return 'medium';
     return 'low';
-}
-
-// Проверка visa sponsorship
-async function checkSponsorship(jobId, button) {
-    showLoading(button);
-    try {
-        const response = await fetch(`/api/analyze-sponsorship/${jobId}`, {
-            method: 'POST'
-        });
-        
-        if (response.ok) {
-            showToast('✅ Visa sponsorship analyzed!', 'success');
-            loadJobs();
-        } else {
-            const error = await response.json();
-            showToast('❌ Error: ' + (error.detail || 'Unknown error'), 'error');
-        }
-    } catch (error) {
-        console.error('Error checking sponsorship:', error);
-        showToast('❌ Network error. Please try again.', 'error');
-    } finally {
-        hideLoading(button);
-    }
-}
-
-// Анализ соответствия резюме
-async function analyzeMatch(jobId, button) {
-    showLoading(button);
-    try {
-        const response = await fetch(`/api/analyze-match/${jobId}`, {
-            method: 'POST'
-        });
-        
-        if (response.ok) {
-            const job = await response.json();
-            showToast(`✅ Resume match: ${job.resume_match_percentage}%`, 'success');
-            loadJobs();
-        } else {
-            const error = await response.json();
-            showToast('❌ Error: ' + (error.detail || 'Unknown error'), 'error');
-        }
-    } catch (error) {
-        console.error('Error analyzing match:', error);
-        showToast('❌ Network error. Please try again.', 'error');
-    } finally {
-        hideLoading(button);
-    }
 }
 
 // Генерация cover letter

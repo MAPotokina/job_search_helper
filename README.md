@@ -63,16 +63,24 @@ http://localhost:8000
 ### Adding a Job
 
 1. Paste the job description in the form
-2. **Option A**: Fill in Title and Company manually
-3. **Option B**: Leave Title/Company empty and click "Add Job" - AI will extract them automatically ✨
-4. Job is added with status "new"
+2. **(Optional)** Fill in Title and Company manually
+3. Click "Add Job"
+4. **AI automatically analyzes everything in one go:**
+   - Extracts job title and company (if not provided)
+   - Checks visa sponsorship status (Yes/No/N/A)
+   - Calculates resume match percentage
+5. Results appear instantly in the table! ✨
 
-### Analyzing Jobs
+**Visa Sponsorship Status:**
+- **✓ Yes** - Sponsorship explicitly mentioned or offered
+- **✗ No** - Explicitly states NO sponsorship (e.g., "must be authorized to work")
+- **N/A** - No mention of sponsorship at all
+
+### Working with Jobs
 
 For each job, you can:
 
-- **Check Visa Sponsorship**: Click "Check Visa" to analyze if the job offers sponsorship
-- **Analyze Resume Match**: Click "Match" to see how well your resume fits (shows percentage)
+- **View Analysis**: See visa sponsorship and resume match automatically
 - **Generate Cover Letter**: Click "Cover Letter" to create a personalized letter
 - **Update Status**: Change status from dropdown (new → applied → interview → offer/rejected)
 - **Delete**: Remove unwanted jobs
@@ -151,6 +159,7 @@ Edit `app/config.py` for:
 3. **Job Descriptions**: Longer, more detailed descriptions give better AI analysis
 4. **Costs**: Check `/stats` regularly to monitor OpenAI usage and costs
 5. **Backup**: Your data is in `data/jobs.db` - back it up regularly
+6. **Token Optimization**: The app uses a single API call for all analysis (~60% token savings vs. separate requests)
 
 ## 🐛 Troubleshooting
 

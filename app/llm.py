@@ -38,6 +38,75 @@ def log_llm_call(function_name: str, status: str, execution_time: float,
         db.close()
 
 
+def analyze_job_complete(job_description: str, resume: str) -> dict:
+    """Комплексный анализ вакансии: извлечение инфо + спонсорство + соответствие"""
+    start_time = time.time()
+    
+    # Обрезаем длинные тексты
+    if len(job_description) > MAX_JOB_DESCRIPTION_LENGTH:
+        job_description = job_description[:MAX_JOB_DESCRIPTION_LENGTH]
+        logger.info(f"Job description truncated to {MAX_JOB_DESCRIPTION_LENGTH} chars")
+    if len(resume) > MAX_RESUME_LENGTH:
+        resume = resume[:MAX_RESUME_LENGTH]
+        logger.info(f"Resume truncated to {MAX_RESUME_LENGTH} chars")
+    
+    try:
+        prompt = PROMPTS["analyze_job_complete"].format(
+            job_description=job_description,
+            resume=resume
+        )
+        
+        response = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=OPENAI_TEMPERATURE,
+            max_tokens=OPENAI_MAX_TOKENS
+        )
+        
+        result_text = response.choices[0].message.content.strip()
+        tokens_used = response.usage.total_tokens
+        execution_time = time.time() - start_time
+        
+        result = json.loads(result_text)
+        
+        log_llm_call("analyze_job_complete", "success", execution_time, tokens_used)
+        logger.info(f"LLM | analyze_job_complete | SUCCESS | {execution_time:.2f}s | {tokens_used} tokens")
+        
+        return result
+        
+    except json.JSONDecodeError as e:
+        execution_time = time.time() - start_time
+        error_msg = f"JSON parsing error: {str(e)}"
+        
+        log_llm_call("analyze_job_complete", "error", execution_time, error_message=error_msg)
+        logger.error(f"LLM | analyze_job_complete | ERROR | {execution_time:.2f}s | {error_msg}")
+        
+        return {
+            "title": "Unknown Position",
+            "company": "Unknown Company",
+            "visa_sponsorship": None,
+            "visa_analysis": "Unable to analyze",
+            "match_percentage": 0,
+            "match_analysis": "Unable to analyze"
+        }
+        
+    except Exception as e:
+        execution_time = time.time() - start_time
+        error_msg = str(e)
+        
+        log_llm_call("analyze_job_complete", "error", execution_time, error_message=error_msg)
+        logger.error(f"LLM | analyze_job_complete | ERROR | {execution_time:.2f}s | {error_msg}")
+        
+        return {
+            "title": "Unknown Position",
+            "company": "Unknown Company",
+            "visa_sponsorship": None,
+            "visa_analysis": "Unable to analyze",
+            "match_percentage": 0,
+            "match_analysis": "Unable to analyze"
+        }
+
+
 def extract_job_info(job_description: str) -> dict:
     """Извлечение названия позиции и компании из описания вакансии"""
     start_time = time.time()

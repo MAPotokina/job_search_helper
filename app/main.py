@@ -10,7 +10,7 @@ from app.config import logger
 from app.database import init_db, get_db
 from app.models import Job
 from app.schemas import JobCreate, JobUpdate, JobResponse
-from app.llm import extract_job_info, analyze_visa_sponsorship, analyze_resume_match, generate_cover_letter
+from app.llm import analyze_job_complete, generate_cover_letter
 
 app = FastAPI(title="Job Search Helper")
 
@@ -96,69 +96,6 @@ async def get_stats(db: Session = Depends(get_db)):
 # LLM Endpoints
 
 
-@app.post("/api/extract-job-info")
-async def extract_job_info_endpoint(request: dict):
-    """Извлечение title и company из описания вакансии"""
-    job_description = request.get("job_description", "")
-    
-    if not job_description:
-        raise HTTPException(status_code=400, detail="job_description is required")
-    
-    result = extract_job_info(job_description)
-    return result
-
-
-@app.post("/api/analyze-sponsorship/{job_id}", response_model=JobResponse)
-async def analyze_sponsorship(job_id: int, db: Session = Depends(get_db)):
-    """Анализ visa sponsorship для вакансии"""
-    job = db.query(Job).filter(Job.id == job_id).first()
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-    
-    if not job.job_description:
-        raise HTTPException(status_code=400, detail="Job description is required")
-    
-    result = analyze_visa_sponsorship(job.job_description)
-    
-    # Сохраняем результат в БД
-    job.has_visa_sponsorship = result.get("has_sponsorship")
-    job.sponsorship_analysis = result.get("analysis")
-    db.commit()
-    db.refresh(job)
-    
-    logger.info(f"POST /api/analyze-sponsorship/{job_id} | Sponsorship: {job.has_visa_sponsorship}")
-    return job
-
-
-@app.post("/api/analyze-match/{job_id}", response_model=JobResponse)
-async def analyze_match(job_id: int, db: Session = Depends(get_db)):
-    """Анализ соответствия резюме вакансии"""
-    job = db.query(Job).filter(Job.id == job_id).first()
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-    
-    if not job.job_description:
-        raise HTTPException(status_code=400, detail="Job description is required")
-    
-    # Читаем резюме пользователя
-    try:
-        with open("templates/user_resume.txt", "r") as f:
-            resume = f.read()
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Resume file not found. Please create templates/user_resume.txt")
-    
-    result = analyze_resume_match(resume, job.job_description)
-    
-    # Сохраняем результат
-    job.resume_match_percentage = result.get("match_percentage")
-    job.match_analysis = result.get("analysis")
-    db.commit()
-    db.refresh(job)
-    
-    logger.info(f"POST /api/analyze-match/{job_id} | Match: {job.resume_match_percentage}%")
-    return job
-
-
 @app.post("/api/generate-cover-letter/{job_id}", response_model=JobResponse)
 async def generate_cover_letter_endpoint(job_id: int, db: Session = Depends(get_db)):
     """Генерация персонализированного cover letter"""
@@ -200,8 +137,44 @@ async def generate_cover_letter_endpoint(job_id: int, db: Session = Depends(get_
 
 @app.post("/api/jobs", response_model=JobResponse, status_code=201)
 async def create_job(job: JobCreate, db: Session = Depends(get_db)):
-    """Создание новой вакансии"""
-    db_job = Job(**job.dict())
+    """Создание новой вакансии с автоматическим AI анализом"""
+    
+    # Если есть description, делаем комплексный анализ
+    if job.job_description:
+        try:
+            with open("templates/user_resume.txt", "r") as f:
+                resume = f.read()
+            
+            # Комплексный анализ: title, company, visa, match
+            analysis = analyze_job_complete(job.job_description, resume)
+            
+            # Если title/company не указаны, берем из анализа
+            title = job.title if job.title else analysis.get("title", "Unknown Position")
+            company = job.company if job.company else analysis.get("company", "Unknown Company")
+            
+            # Создаем job с результатами анализа
+            db_job = Job(
+                title=title,
+                company=company,
+                job_url=job.job_url,
+                job_description=job.job_description,
+                status=job.status,
+                has_visa_sponsorship=analysis.get("visa_sponsorship"),
+                sponsorship_analysis=analysis.get("visa_analysis"),
+                resume_match_percentage=analysis.get("match_percentage"),
+                match_analysis=analysis.get("match_analysis")
+            )
+            logger.info(f"Job analyzed: visa={analysis.get('visa_sponsorship')}, match={analysis.get('match_percentage')}%")
+            
+        except FileNotFoundError:
+            logger.warning("Resume file not found, creating job without analysis")
+            db_job = Job(**job.dict())
+        except Exception as e:
+            logger.error(f"Error during job analysis: {e}")
+            db_job = Job(**job.dict())
+    else:
+        db_job = Job(**job.dict())
+    
     db.add(db_job)
     db.commit()
     db.refresh(db_job)

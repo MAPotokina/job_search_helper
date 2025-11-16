@@ -3,6 +3,31 @@
 """
 
 PROMPTS = {
+    "analyze_job_complete": """Analyze the following job description and provide a comprehensive analysis.
+Extract job information, analyze visa sponsorship, and calculate resume match.
+
+Return ONLY a valid JSON object with this exact format:
+{{
+    "title": "job title here",
+    "company": "company name here",
+    "visa_sponsorship": true/false/null,
+    "visa_analysis": "brief explanation",
+    "match_percentage": 75,
+    "match_analysis": "brief explanation"
+}}
+
+IMPORTANT for visa_sponsorship field:
+- Use `true` ONLY if sponsorship is explicitly mentioned or offered
+- Use `false` ONLY if it explicitly states NO sponsorship (e.g., "must be authorized to work", "no visa sponsorship")
+- Use `null` if there is NO mention of sponsorship at all
+
+Job Description:
+{job_description}
+
+Resume:
+{resume}
+""",
+    
     "extract_job_info": """You are a job description analyzer. Extract the job title and company name from the following job description.
 
 Return ONLY a valid JSON object with this exact format:
