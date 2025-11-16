@@ -31,6 +31,12 @@ async def serve_frontend():
     return FileResponse("app/static/index.html")
 
 
+@app.get("/stats")
+async def serve_stats():
+    """Раздача страницы статистики"""
+    return FileResponse("app/static/stats.html")
+
+
 @app.get("/api/health")
 async def health_check(db: Session = Depends(get_db)):
     """Health check endpoint для проверки БД"""
@@ -41,6 +47,50 @@ async def health_check(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Database health check failed: {e}")
         return {"status": "error", "database": "disconnected"}
+
+
+@app.get("/api/stats")
+async def get_stats(db: Session = Depends(get_db)):
+    """Статистика использования LLM"""
+    from sqlalchemy import func
+    from app.models import LLMLog
+    from app.config import COST_PER_1K_TOKENS
+    
+    # Общая статистика
+    total_calls = db.query(func.count(LLMLog.id)).scalar()
+    successful_calls = db.query(func.count(LLMLog.id)).filter(
+        LLMLog.status == "success"
+    ).scalar()
+    total_tokens = db.query(func.sum(LLMLog.tokens_used)).scalar() or 0
+    total_cost = (total_tokens / 1000) * COST_PER_1K_TOKENS
+    
+    # Разбивка по функциям
+    stats_by_function = db.query(
+        LLMLog.function_name,
+        func.count(LLMLog.id).label("count"),
+        func.sum(LLMLog.tokens_used).label("tokens"),
+        func.avg(LLMLog.execution_time).label("avg_time")
+    ).group_by(LLMLog.function_name).all()
+    
+    function_stats = []
+    for stat in stats_by_function:
+        tokens = stat.tokens or 0
+        cost = (tokens / 1000) * COST_PER_1K_TOKENS
+        function_stats.append({
+            "function_name": stat.function_name,
+            "call_count": stat.count,
+            "tokens_used": tokens,
+            "avg_execution_time": round(stat.avg_time, 2) if stat.avg_time else 0,
+            "estimated_cost": round(cost, 4)
+        })
+    
+    return {
+        "total_calls": total_calls,
+        "successful_calls": successful_calls,
+        "total_tokens": total_tokens,
+        "estimated_cost": round(total_cost, 2),
+        "by_function": function_stats
+    }
 
 
 # LLM Endpoints
