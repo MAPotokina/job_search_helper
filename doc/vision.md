@@ -1,103 +1,103 @@
 # Technical Vision - Job Search Helper
 
-## 1. Технологии
+## 1. Technologies
 
 ### Backend
-- **Python 3.10+** - основной язык разработки
-- **FastAPI** - веб-фреймворк (быстрый, простой, автодокументация)
-- **SQLite** - встроенная база данных (нулевая настройка)
-- **Pydantic** - валидация данных (встроено в FastAPI)
+- **Python 3.10+** - main development language
+- **FastAPI** - web framework (fast, simple, auto-documentation)
+- **SQLite** - embedded database (zero configuration)
+- **Pydantic** - data validation (built into FastAPI)
 
 ### Frontend
-- **HTML + Vanilla JavaScript + CSS** - минимальный стек без фреймворков
-- Никаких сборщиков (webpack, vite) на старте
+- **HTML + Vanilla JavaScript + CSS** - minimal stack without frameworks
+- No bundlers (webpack, vite) at start
 
 ### LLM Integration
-- **OpenAI API** (GPT-3.5-turbo для начала) - анализ вакансий и помощь с cover letters
-- **openai** (официальная Python библиотека)
+- **OpenAI API** (GPT-3.5-turbo to start) - job analysis and cover letter assistance
+- **openai** (official Python library)
 
-### Дополнительные библиотеки
-- **SQLAlchemy** - ORM для работы с базой данных
-- **python-dotenv** - управление переменными окружения
-- **uvicorn** - ASGI сервер для FastAPI
+### Additional Libraries
+- **SQLAlchemy** - ORM for database work
+- **python-dotenv** - environment variable management
+- **uvicorn** - ASGI server for FastAPI
 
-### Инструменты разработки
-- **venv** - виртуальное окружение (уже настроено)
-- **requirements.txt** - управление зависимостями
+### Development Tools
+- **venv** - virtual environment (already configured)
+- **requirements.txt** - dependency management
 
-## 2. Принципы разработки
+## 2. Development Principles
 
-### Философия
-- **KISS (Keep It Simple, Stupid)** - максимальная простота во всём
-- **MVP-first** - работающий прототип важнее идеального кода
-- **Монолитная архитектура** - всё в одном приложении
-- **No premature optimization** - оптимизируем только реальные проблемы
+### Philosophy
+- **KISS (Keep It Simple, Stupid)** - maximum simplicity in everything
+- **MVP-first** - working prototype is more important than perfect code
+- **Monolithic architecture** - everything in one application
+- **No premature optimization** - optimize only real problems
 
-### Технические решения
-- **Single-user приложение** - без системы аутентификации на MVP
-- **Синхронный код** - async только в FastAPI endpoints где необходимо
-- **ORM (SQLAlchemy)** - для удобной работы с БД, но без сложных связей
-- **Минимальная валидация** - только критичные проверки через Pydantic
-- **Прямолинейная структура** - простые модули, минимум абстракций
+### Technical Decisions
+- **Single-user application** - no authentication system for MVP
+- **Synchronous code** - async only in FastAPI endpoints where necessary
+- **ORM (SQLAlchemy)** - for convenient database work, but without complex relationships
+- **Minimal validation** - only critical checks via Pydantic
+- **Straightforward structure** - simple modules, minimal abstractions
 
-### Что НЕ делаем на MVP
-- ❌ Система аутентификации и авторизации
-- ❌ Модульные тесты (добавим позже)
-- ❌ CI/CD пайплайны
-- ❌ Docker и контейнеризация
-- ❌ Микросервисная архитектура
-- ❌ Кэширование
-- ❌ Асинхронная обработка задач (Celery и т.п.)
+### What we DON'T do for MVP
+- ❌ Authentication and authorization system
+- ❌ Unit tests (will add later)
+- ❌ CI/CD pipelines
+- ❌ Docker and containerization
+- ❌ Microservices architecture
+- ❌ Caching
+- ❌ Asynchronous task processing (Celery, etc.)
 
-## 3. Структура проекта
+## 3. Project Structure
 
 ```
 JobSearchHelper/
 ├── app/
-│   ├── main.py              # FastAPI приложение, точка входа
-│   ├── database.py          # Настройка БД и SQLAlchemy
-│   ├── models.py            # SQLAlchemy модели (таблицы)
-│   ├── schemas.py           # Pydantic схемы для API
-│   ├── llm.py               # Работа с OpenAI API
-│   └── static/              # Статические файлы для фронтенда
-│       ├── index.html       # Главная страница
-│       ├── style.css        # Стили
-│       └── app.js           # Логика фронтенда
+│   ├── main.py              # FastAPI application, entry point
+│   ├── database.py          # Database setup and SQLAlchemy
+│   ├── models.py            # SQLAlchemy models (tables)
+│   ├── schemas.py           # Pydantic schemas for API
+│   ├── llm.py               # Work with OpenAI API
+│   └── static/              # Static files for frontend
+│       ├── index.html       # Main page
+│       ├── style.css        # Styles
+│       └── app.js           # Frontend logic
 ├── templates/
-│   └── cover_letter_base.txt  # Базовый шаблон cover letter пользователя
+│   └── cover_letter_base.txt  # Base cover letter template for user
 ├── data/
-│   └── jobs.db              # SQLite база (создаётся автоматически)
-├── .env                     # Переменные окружения (OPENAI_API_KEY)
-├── .env.example             # Пример .env файла
-├── .gitignore               # Исключения для git
-├── requirements.txt         # Зависимости Python
-├── idea.md                  # Описание идеи проекта
-└── vision.md                # Технический дизайн (этот документ)
+│   └── jobs.db              # SQLite database (created automatically)
+├── .env                     # Environment variables (OPENAI_API_KEY)
+├── .env.example             # Example .env file
+├── .gitignore               # Git exclusions
+├── requirements.txt         # Python dependencies
+├── idea.md                  # Project idea description
+└── vision.md                # Technical design (this document)
 ```
 
-### Принципы структуры
-- **Плоская организация** - все модули на одном уровне в папке `app/`
-- **Один файл = одна ответственность** - database, models, llm, schemas раздельно
-- **Минимум вложенности** - никаких подпакетов типа `routers/`, `services/`, `utils/`
-- **Логи в консоль** - без файлов логов на MVP
+### Structure Principles
+- **Flat organization** - all modules at one level in `app/` folder
+- **One file = one responsibility** - database, models, llm, schemas separate
+- **Minimal nesting** - no subpackages like `routers/`, `services/`, `utils/`
+- **Console logs** - no log files for MVP
 
-## 4. Архитектура проекта
+## 4. Project Architecture
 
-### Общая схема (3-tier architecture)
+### Overall Scheme (3-tier architecture)
 
 ```
 ┌─────────────────────────────────────┐
-│   Frontend (HTML/JS/CSS)            │  ← Браузер пользователя
-│   - Форма добавления вакансии       │
-│   - Список вакансий                 │
-│   - Генерация cover letter          │
+│   Frontend (HTML/JS/CSS)            │  ← User's browser
+│   - Add job form                    │
+│   - Jobs list                       │
+│   - Cover letter generation         │
 └──────────────┬──────────────────────┘
                │ HTTP/JSON (REST API)
 ┌──────────────▼──────────────────────┐
 │   FastAPI Application (main.py)     │
 │   - REST endpoints (CRUD)           │
-│   - Валидация (Pydantic schemas)    │
-│   - Статическая раздача файлов      │
+│   - Validation (Pydantic schemas)   │
+│   - Static file serving             │
 └──────┬────────────────────┬─────────┘
        │                    │
        │                    └──────────┐
@@ -117,124 +117,124 @@ JobSearchHelper/
 
 ### API Endpoints
 
-**Статические файлы:**
-- `GET /` - главная страница (index.html)
+**Static files:**
+- `GET /` - main page (index.html)
 
 **Job Management:**
-- `GET /api/jobs` - получить все вакансии
-- `POST /api/jobs` - добавить новую вакансию
-- `GET /api/jobs/{id}` - получить вакансию по ID
-- `PUT /api/jobs/{id}` - обновить вакансию (включая статус)
-- `DELETE /api/jobs/{id}` - удалить вакансию
+- `GET /api/jobs` - get all jobs
+- `POST /api/jobs` - add new job
+- `GET /api/jobs/{id}` - get job by ID
+- `PUT /api/jobs/{id}` - update job (including status)
+- `DELETE /api/jobs/{id}` - delete job
 
 **LLM Features:**
-- `POST /api/extract-job-info` - извлечение названия и компании из описания (автоматически)
-- `POST /api/analyze-sponsorship` - анализ текста вакансии на visa sponsorship
-- `POST /api/analyze-match` - анализ соответствия резюме вакансии
-- `POST /api/generate-cover-letter` - генерация персонализированного cover letter
+- `POST /api/extract-job-info` - extract title and company from description (automatic)
+- `POST /api/analyze-sponsorship` - analyze job text for visa sponsorship
+- `POST /api/analyze-match` - analyze resume-job match
+- `POST /api/generate-cover-letter` - generate personalized cover letter
 
-### Ключевые решения
-- **Монолит** - всё в одном FastAPI приложении
-- **REST API** - стандартные HTTP методы и JSON
-- **Синхронные вызовы LLM** - пользователь ждёт ответа
-- **Хранение cover letters в БД** - для истории и повторного использования
-- **Без middleware** - минимальная обработка запросов
-- **Без роутеров** - все endpoints в main.py
+### Key Decisions
+- **Monolith** - everything in one FastAPI application
+- **REST API** - standard HTTP methods and JSON
+- **Synchronous LLM calls** - user waits for response
+- **Store cover letters in database** - for history and reuse
+- **No middleware** - minimal request processing
+- **No routers** - all endpoints in main.py
 
-## 5. Модель данных
+## 5. Data Model
 
-### Таблица: `jobs`
+### Table: `jobs`
 
-| Поле | Тип | Описание |
-|------|-----|----------|
-| `id` | Integer (PK) | Уникальный идентификатор |
-| `title` | String(200) | Название позиции |
-| `company` | String(200) | Название компании |
-| `job_url` | String(500) | Ссылка на вакансию |
-| `job_description` | Text | Полное описание вакансии |
-| `has_visa_sponsorship` | Boolean (nullable) | Есть ли sponsorship (null/true/false) |
-| `sponsorship_analysis` | Text (nullable) | Результат анализа LLM |
-| `resume_match_percentage` | Integer (nullable) | Соответствие резюме (0-100) |
-| `match_analysis` | Text (nullable) | Объяснение от LLM |
-| `status` | String(50) | Статус заявки (enum) |
-| `cover_letter` | Text (nullable) | Сгенерированное cover letter |
-| `applied_date` | DateTime (nullable) | Дата подачи заявки |
-| `response_date` | DateTime (nullable) | Дата получения ответа |
-| `days_to_response` | Integer (nullable) | Дни до ответа (автовычисляемое) |
-| `created_at` | DateTime | Дата создания записи |
-| `updated_at` | DateTime | Дата последнего обновления |
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | Integer (PK) | Unique identifier |
+| `title` | String(200) | Position title |
+| `company` | String(200) | Company name |
+| `job_url` | String(500) | Job listing URL |
+| `job_description` | Text | Full job description |
+| `has_visa_sponsorship` | Boolean (nullable) | Has sponsorship (null/true/false) |
+| `sponsorship_analysis` | Text (nullable) | LLM analysis result |
+| `resume_match_percentage` | Integer (nullable) | Resume match (0-100) |
+| `match_analysis` | Text (nullable) | LLM explanation |
+| `status` | String(50) | Application status (enum) |
+| `cover_letter` | Text (nullable) | Generated cover letter |
+| `applied_date` | DateTime (nullable) | Application submission date |
+| `response_date` | DateTime (nullable) | Response received date |
+| `days_to_response` | Integer (nullable) | Days to response (auto-calculated) |
+| `created_at` | DateTime | Record creation date |
+| `updated_at` | DateTime | Last update date |
 
 ### Enum: Status
-- `new` - добавлена в систему, ещё не подавал
-- `applied` - заявка подана
-- `interview` - пригласили на интервью
-- `offer` - предложили оффер
-- `rejected` - отказали
+- `new` - added to system, not applied yet
+- `applied` - application submitted
+- `interview` - invited to interview
+- `offer` - received offer
+- `rejected` - rejected
 
-### Файлы пользователя
+### User Files
 
 ```
 templates/
-  ├── cover_letter_base.txt  # Базовый шаблон cover letter
-  └── user_resume.txt         # Резюме пользователя (для анализа)
+  ├── cover_letter_base.txt  # Base cover letter template
+  └── user_resume.txt         # User's resume (for analysis)
 ```
 
-### Логика работы
-- **days_to_response**: вычисляется автоматически при установке `response_date`
-- **resume_match_percentage**: заполняется по запросу пользователя (кнопка "Analyze Match")
-- **has_visa_sponsorship**: заполняется через LLM-анализ текста описания
-- **cover_letter**: генерируется по запросу на основе `user_resume.txt` + `cover_letter_base.txt` + `job_description`
+### Logic
+- **days_to_response**: calculated automatically when `response_date` is set
+- **resume_match_percentage**: filled on user request ("Analyze Match" button)
+- **has_visa_sponsorship**: filled via LLM analysis of description text
+- **cover_letter**: generated on request based on `user_resume.txt` + `cover_letter_base.txt` + `job_description`
 
-## 6. Работа с LLM
+## 6. Working with LLM
 
-### LLM Функции
+### LLM Functions
 
-#### 1. Анализ Visa Sponsorship
-**Функция:** `analyze_visa_sponsorship(job_description: str)`
-- **Вход:** текст описания вакансии (макс. 5000 символов)
-- **Выход:** `{"has_sponsorship": bool, "analysis": str}`
-- **Модель:** GPT-3.5-turbo
-- **Промпт:** из конфиг-файла
+#### 1. Visa Sponsorship Analysis
+**Function:** `analyze_visa_sponsorship(job_description: str)`
+- **Input:** job description text (max 5000 characters)
+- **Output:** `{"has_sponsorship": bool, "analysis": str}`
+- **Model:** GPT-3.5-turbo
+- **Prompt:** from config file
 
 #### 2. Resume Match Analysis
-**Функция:** `analyze_resume_match(resume: str, job_description: str)`
-- **Вход:** резюме + описание вакансии (макс. 5000 символов каждое)
-- **Выход:** `{"match_percentage": int, "analysis": str}`
-- **Модель:** GPT-3.5-turbo
-- **Промпт:** из конфиг-файла
+**Function:** `analyze_resume_match(resume: str, job_description: str)`
+- **Input:** resume + job description (max 5000 characters each)
+- **Output:** `{"match_percentage": int, "analysis": str}`
+- **Model:** GPT-3.5-turbo
+- **Prompt:** from config file
 
 #### 3. Cover Letter Generation
-**Функция:** `generate_cover_letter(resume: str, template: str, job_description: str, job_title: str, company: str)`
-- **Вход:** резюме + базовый шаблон + описание вакансии + название позиции + компания
-- **Выход:** `{"cover_letter": str}`
-- **Модель:** GPT-3.5-turbo
-- **Промпт:** из конфиг-файла
+**Function:** `generate_cover_letter(resume: str, template: str, job_description: str, job_title: str, company: str)`
+- **Input:** resume + base template + job description + position title + company
+- **Output:** `{"cover_letter": str}`
+- **Model:** GPT-3.5-turbo
+- **Prompt:** from config file
 
-#### 4. Extract Job Info (автоматическое извлечение)
-**Функция:** `extract_job_info(job_description: str)`
-- **Вход:** текст описания вакансии
-- **Выход:** `{"title": str, "company": str}`
-- **Модель:** GPT-3.5-turbo
-- **Промпт:** из конфиг-файла
-- **Использование:** автоматически при добавлении новой вакансии
+#### 4. Extract Job Info (automatic extraction)
+**Function:** `extract_job_info(job_description: str)`
+- **Input:** job description text
+- **Output:** `{"title": str, "company": str}`
+- **Model:** GPT-3.5-turbo
+- **Prompt:** from config file
+- **Usage:** automatically when adding new job
 
-### Технические параметры
+### Technical Parameters
 
 ```python
-# Настройки OpenAI API
+# OpenAI API settings
 MODEL = "gpt-3.5-turbo"
-TEMPERATURE = 0.3  # Более детерминированные ответы
+TEMPERATURE = 0.3  # More deterministic responses
 MAX_TOKENS = 1000
-TIMEOUT = 30  # секунд
+TIMEOUT = 30  # seconds
 
-# Ограничения
-MAX_JOB_DESCRIPTION_LENGTH = 5000  # символов
-MAX_RESUME_LENGTH = 5000  # символов
+# Limits
+MAX_JOB_DESCRIPTION_LENGTH = 5000  # characters
+MAX_RESUME_LENGTH = 5000  # characters
 ```
 
-### Конфигурация промптов
+### Prompt Configuration
 
-**Файл:** `app/prompts.py`
+**File:** `app/prompts.py`
 
 ```python
 PROMPTS = {
@@ -245,210 +245,210 @@ PROMPTS = {
 }
 ```
 
-### Обработка ошибок
-- **API недоступен** → возвращаем HTTP 503 с сообщением об ошибке
-- **Rate limit** → возвращаем HTTP 429 с сообщением
-- **Timeout** → возвращаем HTTP 504
-- **Длинный текст** → автоматически обрезаем до лимита перед отправкой
-- **Нет retry** → одна попытка, при ошибке сразу возвращаем пользователю
+### Error Handling
+- **API unavailable** → return HTTP 503 with error message
+- **Rate limit** → return HTTP 429 with message
+- **Timeout** → return HTTP 504
+- **Long text** → automatically trim to limit before sending
+- **No retry** → one attempt, immediately return error to user on failure
 
-## 7. Мониторинг LLM
+## 7. LLM Monitoring
 
-### Таблица: `llm_logs`
+### Table: `llm_logs`
 
-| Поле | Тип | Описание |
-|------|-----|----------|
-| `id` | Integer (PK) | Уникальный идентификатор |
-| `function_name` | String(100) | Название функции (visa_sponsorship, resume_match, cover_letter) |
-| `status` | String(50) | Статус выполнения (success, error) |
-| `execution_time` | Float | Время выполнения в секундах |
-| `tokens_used` | Integer (nullable) | Количество использованных токенов |
-| `error_message` | Text (nullable) | Сообщение об ошибке |
-| `created_at` | DateTime | Timestamp запроса |
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | Integer (PK) | Unique identifier |
+| `function_name` | String(100) | Function name (visa_sponsorship, resume_match, cover_letter) |
+| `status` | String(50) | Execution status (success, error) |
+| `execution_time` | Float | Execution time in seconds |
+| `tokens_used` | Integer (nullable) | Number of tokens used |
+| `error_message` | Text (nullable) | Error message |
+| `created_at` | DateTime | Request timestamp |
 
-### Логирование
+### Logging
 
-**Формат консольных логов:**
+**Console log format:**
 ```
 [2025-11-16 10:30:45] LLM | analyze_visa_sponsorship | SUCCESS | 2.3s | 150 tokens
 [2025-11-16 10:31:12] LLM | generate_cover_letter | ERROR | 0.5s | OpenAI timeout
 [2025-11-16 10:32:00] LLM | analyze_resume_match | SUCCESS | 3.1s | 280 tokens
 ```
 
-**Что логируем:**
+**What we log:**
 - Timestamp
-- Название функции
-- Статус (SUCCESS/ERROR)
-- Время выполнения
-- Использованные токены (если успех)
-- Текст ошибки (если ошибка)
+- Function name
+- Status (SUCCESS/ERROR)
+- Execution time
+- Tokens used (if success)
+- Error text (if error)
 
-### Страница статистики
+### Statistics Page
 
-**URL:** `GET /stats` или отдельная секция в UI
+**URL:** `GET /stats` or separate UI section
 
-**Показываем:**
-- Общее количество LLM запросов
-- Успешных / с ошибками
-- Общее количество токенов
-- Примерная стоимость (токены × цена GPT-3.5-turbo)
-- Разбивка по функциям (сколько раз каждая)
-- Среднее время выполнения
+**Display:**
+- Total number of LLM requests
+- Successful / with errors
+- Total tokens used
+- Estimated cost (tokens × GPT-3.5-turbo price)
+- Breakdown by function (how many times each)
+- Average execution time
 
-### Расчёт стоимости
+### Cost Calculation
 
 ```python
-# Примерные цены GPT-3.5-turbo (на ноябрь 2025)
-COST_PER_1K_TOKENS = 0.002  # $0.002 за 1K tokens
+# Approximate GPT-3.5-turbo prices (November 2025)
+COST_PER_1K_TOKENS = 0.002  # $0.002 per 1K tokens
 
 total_cost = (total_tokens / 1000) * COST_PER_1K_TOKENS
 ```
 
-### API Endpoint для статистики
-- `GET /api/stats` - получить статистику использования LLM
+### Statistics API Endpoint
+- `GET /api/stats` - get LLM usage statistics
 
-## 8. Сценарии работы
+## 8. Usage Scenarios
 
-### Сценарий 1: Добавление новой вакансии
-1. Пользователь открывает главную страницу
-2. Вставляет **только URL и описание вакансии** в форму
-3. Нажимает "Add Job"
-4. **Система автоматически через LLM извлекает:**
-   - Название позиции (title)
-   - Название компании (company)
-5. Сохраняет в БД со статусом "new"
-6. Вакансия появляется в списке с автозаполненными полями
+### Scenario 1: Adding New Job
+1. User opens main page
+2. Pastes **only URL and job description** into form
+3. Clicks "Add Job"
+4. **System automatically extracts via LLM:**
+   - Position title (title)
+   - Company name (company)
+5. Saves to database with status "new"
+6. Job appears in list with auto-filled fields
 
-### Сценарий 2: Анализ visa sponsorship
-1. Пользователь видит вакансию в списке
-2. Нажимает кнопку "Check Sponsorship"
-3. Система отправляет описание в LLM
-4. Получает результат (да/нет + объяснение)
-5. Обновляет `has_visa_sponsorship` и `sponsorship_analysis` в БД
-6. Показывает результат пользователю (badge или icon)
+### Scenario 2: Visa Sponsorship Analysis
+1. User sees job in list
+2. Clicks "Check Sponsorship" button
+3. System sends description to LLM
+4. Receives result (yes/no + explanation)
+5. Updates `has_visa_sponsorship` and `sponsorship_analysis` in database
+6. Shows result to user (badge or icon)
 
-### Сценарий 3: Проверка соответствия резюме
-1. Пользователь нажимает "Analyze Match" на конкретной вакансии
-2. Система читает `templates/user_resume.txt`
-3. Отправляет резюме + описание вакансии в LLM
-4. Получает процент (0-100) + объяснение
-5. Сохраняет `resume_match_percentage` и `match_analysis` в БД
-6. Показывает процент и объяснение
+### Scenario 3: Resume Match Check
+1. User clicks "Analyze Match" on specific job
+2. System reads `templates/user_resume.txt`
+3. Sends resume + job description to LLM
+4. Receives percentage (0-100) + explanation
+5. Saves `resume_match_percentage` and `match_analysis` to database
+6. Shows percentage and explanation
 
-### Сценарий 4: Генерация cover letter
-1. Пользователь нажимает "Generate Cover Letter"
-2. Система читает:
+### Scenario 4: Cover Letter Generation
+1. User clicks "Generate Cover Letter"
+2. System reads:
    - `templates/user_resume.txt`
    - `templates/cover_letter_base.txt`
-3. Отправляет в LLM вместе с описанием вакансии, названием и компанией
-4. Получает персонализированное cover letter
-5. Сохраняет в поле `cover_letter` в БД
-6. Показывает письмо в модальном окне (можно скопировать/скачать)
+3. Sends to LLM along with job description, title and company
+4. Receives personalized cover letter
+5. Saves to `cover_letter` field in database
+6. Shows letter in modal window (can copy/download)
 
-### Сценарий 5: Обновление статуса заявки
-1. Пользователь меняет статус через dropdown (new → applied → interview → offer/rejected)
-2. **При переходе в "applied":**
-   - Система автоматически ставит `applied_date = today()`
-   - Поле остаётся редактируемым (можно изменить дату)
-3. **При переходе в "offer" или "rejected":**
-   - Система автоматически ставит `response_date = today()`
-   - Автоматически вычисляет `days_to_response = response_date - applied_date`
-   - Поле `response_date` остаётся редактируемым
-4. Изменения сохраняются в БД
+### Scenario 5: Application Status Update
+1. User changes status via dropdown (new → applied → interview → offer/rejected)
+2. **When changing to "applied":**
+   - System automatically sets `applied_date = today()`
+   - Field remains editable (can change date)
+3. **When changing to "offer" or "rejected":**
+   - System automatically sets `response_date = today()`
+   - Automatically calculates `days_to_response = response_date - applied_date`
+   - Field `response_date` remains editable
+4. Changes saved to database
 
-### Сценарий 6: Просмотр статистики
-1. Пользователь открывает страницу `/stats` или секцию Statistics
-2. Видит общую статистику по использованию LLM:
-   - Количество запросов
-   - Использованные токены
-   - Примерная стоимость
-   - Разбивка по функциям
-3. Может использовать для контроля расходов
+### Scenario 6: View Statistics
+1. User opens `/stats` page or Statistics section
+2. Sees overall LLM usage statistics:
+   - Number of requests
+   - Tokens used
+   - Estimated cost
+   - Breakdown by function
+3. Can use for cost control
 
-## 9. Деплой
+## 9. Deployment
 
-### Локальный запуск (MVP)
+### Local Run (MVP)
 
-**Подход:** Простой локальный запуск на машине разработчика
+**Approach:** Simple local run on developer's machine
 
-**Требования:**
+**Requirements:**
 - Python 3.10+
 - Virtual environment (venv)
-- OpenAI API ключ
+- OpenAI API key
 
-**Скрипт запуска:** `run.sh`
+**Startup script:** `run.sh`
 ```bash
 #!/bin/bash
 
-# Активируем виртуальное окружение
+# Activate virtual environment
 source venv/bin/activate
 
-# Проверяем наличие .env файла
+# Check if .env file exists
 if [ ! -f .env ]; then
     echo "Error: .env file not found!"
     echo "Please create .env file with OPENAI_API_KEY"
     exit 1
 fi
 
-# Запускаем FastAPI приложение
+# Start FastAPI application
 echo "Starting Job Search Helper..."
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-**Доступ:** `http://localhost:8000`
+**Access:** `http://localhost:8000`
 
-### Инструкция в README
+### README Instructions
 
-**Шаги запуска:**
-1. Клонировать репозиторий
-2. Создать `.env` файл с `OPENAI_API_KEY=your_key_here`
-3. Активировать venv: `source venv/bin/activate`
-4. Установить зависимости: `pip install -r requirements.txt`
-5. Запустить: `./run.sh` или `uvicorn app.main:app --reload`
-6. Открыть браузер: `http://localhost:8000`
+**Startup steps:**
+1. Clone repository
+2. Create `.env` file with `OPENAI_API_KEY=your_key_here`
+3. Activate venv: `source venv/bin/activate`
+4. Install dependencies: `pip install -r requirements.txt`
+5. Run: `./run.sh` or `uvicorn app.main:app --reload`
+6. Open browser: `http://localhost:8000`
 
-**Первый запуск:**
-- Создать файл `templates/user_resume.txt` с вашим резюме
-- Создать файл `templates/cover_letter_base.txt` с базовым шаблоном
-- База данных `data/jobs.db` создастся автоматически
+**First run:**
+- Create file `templates/user_resume.txt` with your resume
+- Create file `templates/cover_letter_base.txt` with base template
+- Database `data/jobs.db` will be created automatically
 
-### Что НЕ делаем на MVP
-- ❌ Docker/контейнеризация
-- ❌ CI/CD пайплайны
-- ❌ Production WSGI сервер (Gunicorn)
+### What we DON'T do for MVP
+- ❌ Docker/containerization
+- ❌ CI/CD pipelines
+- ❌ Production WSGI server (Gunicorn)
 - ❌ Reverse proxy (Nginx)
 - ❌ HTTPS/SSL
-- ❌ Удалённый доступ
-- ❌ Мультипользовательский режим
+- ❌ Remote access
+- ❌ Multi-user mode
 
-### Остановка приложения
-- `Ctrl+C` в терминале где запущен uvicorn
+### Stop Application
+- `Ctrl+C` in terminal where uvicorn is running
 
-## 10. Подход к конфигурированию
+## 10. Configuration Approach
 
-### Структура конфигурации
+### Configuration Structure
 
-**Принцип:** Разделение секретов, настроек и промптов по разным файлам
+**Principle:** Separate secrets, settings and prompts into different files
 
-### Файл: `.env` (секретные данные)
+### File: `.env` (secret data)
 ```env
 OPENAI_API_KEY=sk-proj-...
 DATABASE_URL=sqlite:///./data/jobs.db
 ```
 
-- **НЕ коммитится в git** (в .gitignore)
-- Только API ключи и чувствительные данные
+- **NOT committed to git** (in .gitignore)
+- Only API keys and sensitive data
 
-### Файл: `.env.example` (шаблон для пользователей)
+### File: `.env.example` (template for users)
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
 DATABASE_URL=sqlite:///./data/jobs.db
 ```
 
-- **Коммитится в git** как пример
-- Помогает другим разработчикам настроить окружение
+- **Committed to git** as example
+- Helps other developers set up environment
 
-### Файл: `app/config.py` (технические настройки)
+### File: `app/config.py` (technical settings)
 ```python
 import os
 from dotenv import load_dotenv
@@ -460,20 +460,20 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = "gpt-3.5-turbo"
 OPENAI_TEMPERATURE = 0.3
 OPENAI_MAX_TOKENS = 1000
-OPENAI_TIMEOUT = 30  # секунд
+OPENAI_TIMEOUT = 30  # seconds
 
 # Database
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/jobs.db")
 
-# Ограничения на длину текста
-MAX_JOB_DESCRIPTION_LENGTH = 5000  # символов
-MAX_RESUME_LENGTH = 5000  # символов
+# Text length limits
+MAX_JOB_DESCRIPTION_LENGTH = 5000  # characters
+MAX_RESUME_LENGTH = 5000  # characters
 
-# Стоимость для расчёта в статистике
-COST_PER_1K_TOKENS = 0.002  # $0.002 за 1K tokens (GPT-3.5-turbo)
+# Cost for statistics calculation
+COST_PER_1K_TOKENS = 0.002  # $0.002 per 1K tokens (GPT-3.5-turbo)
 ```
 
-### Файл: `app/prompts.py` (промпты для LLM)
+### File: `app/prompts.py` (LLM prompts)
 ```python
 PROMPTS = {
     "extract_job_info": """
@@ -499,35 +499,35 @@ PROMPTS = {
 }
 ```
 
-### Преимущества подхода
-- **Секреты отдельно** - `.env` никогда не попадёт в git
-- **Настройки централизованы** - все параметры в `config.py`
-- **Промпты редактируемы** - легко менять без поиска по коду
-- **Простота** - нет сложных конфиг-систем, YAML, JSON файлов
+### Approach Advantages
+- **Secrets separate** - `.env` will never get into git
+- **Settings centralized** - all parameters in `config.py`
+- **Prompts editable** - easy to change without searching through code
+- **Simplicity** - no complex config systems, YAML, JSON files
 
-## 11. Подход к логгированию
+## 11. Logging Approach
 
-### Принцип
+### Principle
 
-**Минимальное логирование в консоль** - без файлов, без ротации, без сложных систем
+**Minimal logging to console** - no files, no rotation, no complex systems
 
-### Что логируем
+### What We Log
 
-#### 1. Запуск приложения
+#### 1. Application Startup
 ```
 [2025-11-16 10:00:00] INFO | Application started on http://127.0.0.1:8000
 [2025-11-16 10:00:00] INFO | Database connected: sqlite:///./data/jobs.db
 [2025-11-16 10:00:00] INFO | OpenAI API configured
 ```
 
-#### 2. API запросы (основные операции)
+#### 2. API Requests (main operations)
 ```
 [2025-11-16 10:01:23] INFO | POST /api/jobs | 201 Created | Job ID: 42
 [2025-11-16 10:02:15] INFO | GET /api/jobs | 200 OK | 15 jobs returned
 [2025-11-16 10:03:00] INFO | DELETE /api/jobs/42 | 204 No Content
 ```
 
-#### 3. LLM вызовы (детально)
+#### 3. LLM Calls (detailed)
 ```
 [2025-11-16 10:03:45] LLM | extract_job_info | SUCCESS | 2.1s | 120 tokens
 [2025-11-16 10:04:12] LLM | analyze_visa_sponsorship | SUCCESS | 3.5s | 180 tokens
@@ -535,22 +535,22 @@ PROMPTS = {
 [2025-11-16 10:06:30] LLM | analyze_resume_match | ERROR | 0.5s | OpenAI timeout
 ```
 
-#### 4. Ошибки (всё подробно)
+#### 4. Errors (everything in detail)
 ```
 [2025-11-16 10:07:00] ERROR | Database error: unable to open database file
 [2025-11-16 10:08:15] ERROR | OpenAI API error: Rate limit exceeded
 [2025-11-16 10:09:30] ERROR | File not found: templates/user_resume.txt
 ```
 
-### Технические детали
+### Technical Details
 
-**Библиотека:** Стандартный `logging` модуль Python
+**Library:** Standard Python `logging` module
 
-**Настройка:**
+**Configuration:**
 ```python
 import logging
 
-# Простая конфигурация
+# Simple configuration
 logging.basicConfig(
     level=logging.INFO,
     format='[%(asctime)s] %(levelname)s | %(message)s',
@@ -560,64 +560,64 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 ```
 
-**Уровни логов:**
-- `INFO` - нормальная работа (старт, API calls, LLM успех)
-- `ERROR` - ошибки (API errors, DB errors, file errors)
-- `DEBUG` - отключен на MVP (можно включить для отладки)
+**Log Levels:**
+- `INFO` - normal operation (startup, API calls, LLM success)
+- `ERROR` - errors (API errors, DB errors, file errors)
+- `DEBUG` - disabled for MVP (can enable for debugging)
 
-### Что НЕ логируем
-- ❌ Полные тексты job descriptions (слишком длинно)
-- ❌ API ключи и секреты
-- ❌ Содержимое резюме пользователя
-- ❌ Полные тексты cover letters
-- ❌ SQL запросы (не нужно на MVP)
+### What We DON'T Log
+- ❌ Full job descriptions text (too long)
+- ❌ API keys and secrets
+- ❌ User resume content
+- ❌ Full cover letter texts
+- ❌ SQL queries (not needed for MVP)
 
-### Куда логируем
-- ✅ **Консоль (stdout)** - единственный выход
-- ❌ Файлы - не используем
-- ❌ Внешние сервисы (Sentry, CloudWatch) - не используем
+### Where We Log
+- ✅ **Console (stdout)** - only output
+- ❌ Files - not used
+- ❌ External services (Sentry, CloudWatch) - not used
 
-### Пример использования в коде
+### Usage Example in Code
 ```python
 from app.config import logger
 
-# Успешная операция
+# Successful operation
 logger.info("Job created successfully", extra={"job_id": job.id})
 
-# Ошибка
+# Error
 logger.error(f"Failed to call OpenAI API: {error_message}")
 ```
 
 ---
 
-## Заключение
+## Conclusion
 
-Этот документ описывает **минимально жизнеспособный продукт (MVP)** для Job Search Helper - простое, функциональное приложение для проверки идеи.
+This document describes **Minimum Viable Product (MVP)** for Job Search Helper - a simple, functional application to test the idea.
 
-### Ключевые принципы MVP
-- ✅ **KISS** - максимальная простота
-- ✅ **Монолит** - всё в одном месте
-- ✅ **Single-user** - один пользователь, локальный запуск
-- ✅ **Быстрый старт** - от нуля до работающего приложения за минимальное время
-- ✅ **Без оверинжиниринга** - никаких лишних технологий и паттернов
+### Key MVP Principles
+- ✅ **KISS** - maximum simplicity
+- ✅ **Monolith** - everything in one place
+- ✅ **Single-user** - one user, local run
+- ✅ **Quick start** - from zero to working application in minimal time
+- ✅ **No over-engineering** - no unnecessary technologies and patterns
 
-### Готовность к разработке
-Документ содержит всё необходимое для начала разработки:
-- Технологический стек определён
-- Архитектура спроектирована
-- Модель данных описана
-- Сценарии работы детализированы
-- Подход к реализации согласован
+### Development Readiness
+Document contains everything necessary to start development:
+- Technology stack defined
+- Architecture designed
+- Data model described
+- Usage scenarios detailed
+- Implementation approach agreed
 
-### Следующие шаги
-1. Создать структуру проекта
-2. Настроить окружение (requirements.txt, .env)
-3. Реализовать базу данных и модели
-4. Реализовать LLM интеграцию
-5. Создать API endpoints
-6. Разработать простой веб-интерфейс
-7. Тестирование и запуск
+### Next Steps
+1. Create project structure
+2. Set up environment (requirements.txt, .env)
+3. Implement database and models
+4. Implement LLM integration
+5. Create API endpoints
+6. Develop simple web interface
+7. Testing and launch
 
-**Документ готов к использованию как техническое задание для разработки!**
+**Document is ready to use as technical specification for development!**
 
 

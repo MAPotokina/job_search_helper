@@ -2,8 +2,8 @@
 
 ## 📊 Progress Report
 
-| Iteration | Название | Статус | Дата завершения | Тест пройден |
-|-----------|----------|--------|-----------------|--------------|
+| Iteration | Name | Status | Completion Date | Test Passed |
+|-----------|------|--------|-----------------|-------------|
 | 0 | Project Setup | ✅ Done | 2025-11-16 | ✅ |
 | 1 | Database & Models | ✅ Done | 2025-11-16 | ✅ |
 | 2 | Basic CRUD API | ✅ Done | 2025-11-16 | ✅ |
@@ -18,384 +18,384 @@
 | 11 | Tooltips for Analysis | ✅ Done | 2025-11-16 | ✅ |
 | 12 | Sorting & Filters | ✅ Done | 2025-11-16 | ✅ |
 
-**Легенда статусов:**
-- ⏳ Pending - не начато
-- 🚧 In Progress - в работе
-- ✅ Done - завершено
-- ❌ Failed - провалено
+**Status Legend:**
+- ⏳ Pending - not started
+- 🚧 In Progress - in progress
+- ✅ Done - completed
+- ❌ Failed - failed
 
 ---
 
 ## Iteration 0: Project Setup 🏗️
 
-**Цель:** Запустить пустое FastAPI приложение
+**Goal:** Run empty FastAPI application
 
 ### Tasks
-- [x] Создать структуру папок (`app/`, `data/`, `templates/`)
-- [x] Создать `requirements.txt` с зависимостями
-- [x] Создать `.env.example` и `.env` с `OPENAI_API_KEY`
-- [x] Создать `.gitignore`
-- [x] Создать `app/config.py` с настройками
-- [x] Создать `app/main.py` с минимальным FastAPI
-- [x] Создать `run.sh` скрипт запуска
+- [x] Create folder structure (`app/`, `data/`, `templates/`)
+- [x] Create `requirements.txt` with dependencies
+- [x] Create `.env.example` and `.env` with `OPENAI_API_KEY`
+- [x] Create `.gitignore`
+- [x] Create `app/config.py` with settings
+- [x] Create `app/main.py` with minimal FastAPI
+- [x] Create `run.sh` startup script
 
 ### Test
 ```bash
 ./run.sh
-# Открыть http://localhost:8000
-# Должен вернуть JSON: {"message": "Job Search Helper API"}
+# Open http://localhost:8000
+# Should return JSON: {"message": "Job Search Helper API"}
 ```
 
 ---
 
 ## Iteration 1: Database & Models 💾
 
-**Цель:** Создать базу данных и модели
+**Goal:** Create database and models
 
 ### Tasks
-- [x] Создать `app/database.py` (SQLAlchemy setup)
-- [x] Создать `app/models.py` с моделями `Job` и `LLMLog`
-- [x] Добавить автосоздание таблиц при старте
-- [x] Создать endpoint `GET /api/health` для проверки БД
+- [x] Create `app/database.py` (SQLAlchemy setup)
+- [x] Create `app/models.py` with `Job` and `LLMLog` models
+- [x] Add automatic table creation on startup
+- [x] Create endpoint `GET /api/health` to check database
 
 ### Test
 ```bash
 ./run.sh
 # GET http://localhost:8000/api/health
-# Должен вернуть: {"status": "ok", "database": "connected"}
-# Проверить что создался файл data/jobs.db
+# Should return: {"status": "ok", "database": "connected"}
+# Verify that file data/jobs.db was created
 ```
 
 ---
 
 ## Iteration 2: Basic CRUD API 📝
 
-**Цель:** CRUD операции для jobs (без LLM)
+**Goal:** CRUD operations for jobs (without LLM)
 
 ### Tasks
-- [x] Создать `app/schemas.py` с Pydantic схемами
-- [x] Реализовать `POST /api/jobs` (создание job вручную)
-- [x] Реализовать `GET /api/jobs` (список всех jobs)
-- [x] Реализовать `GET /api/jobs/{id}` (один job)
-- [x] Реализовать `PUT /api/jobs/{id}` (обновление)
-- [x] Реализовать `DELETE /api/jobs/{id}` (удаление)
-- [x] Добавить автозаполнение дат при смене статуса
+- [x] Create `app/schemas.py` with Pydantic schemas
+- [x] Implement `POST /api/jobs` (create job manually)
+- [x] Implement `GET /api/jobs` (list all jobs)
+- [x] Implement `GET /api/jobs/{id}` (single job)
+- [x] Implement `PUT /api/jobs/{id}` (update)
+- [x] Implement `DELETE /api/jobs/{id}` (delete)
+- [x] Add automatic date filling on status change
 
 ### Test
 ```bash
-# Создать job
+# Create job
 curl -X POST http://localhost:8000/api/jobs \
   -H "Content-Type: application/json" \
   -d '{"title":"Python Dev","company":"ACME","job_url":"http://...","job_description":"...","status":"new"}'
 
-# Получить список
+# Get list
 curl http://localhost:8000/api/jobs
 
-# Обновить статус на "applied"
+# Update status to "applied"
 curl -X PUT http://localhost:8000/api/jobs/1 \
   -H "Content-Type: application/json" \
   -d '{"status":"applied"}'
 
-# Проверить что applied_date заполнилась автоматически
+# Verify that applied_date was filled automatically
 ```
 
 ---
 
 ## Iteration 3: Frontend UI 🎨
 
-**Цель:** Простой веб-интерфейс для управления jobs
+**Goal:** Simple web interface for managing jobs
 
 ### Tasks
-- [x] Создать `app/static/index.html` (главная страница)
-- [x] Создать `app/static/style.css` (базовые стили)
-- [x] Создать `app/static/app.js` (логика UI)
-- [x] Форма добавления job (пока все поля вручную)
-- [x] Таблица со списком jobs
-- [x] Кнопки редактирования и удаления
-- [x] Dropdown для смены статуса
-- [x] Настроить StaticFiles в FastAPI
+- [x] Create `app/static/index.html` (main page)
+- [x] Create `app/static/style.css` (basic styles)
+- [x] Create `app/static/app.js` (UI logic)
+- [x] Add job form (all fields manual for now)
+- [x] Table with jobs list
+- [x] Edit and delete buttons
+- [x] Dropdown for status change
+- [x] Configure StaticFiles in FastAPI
 
 ### Test
 ```bash
 ./run.sh
-# Открыть http://localhost:8000
-# Добавить несколько jobs через UI
-# Изменить статусы
-# Удалить job
-# Проверить что всё работает через UI
+# Open http://localhost:8000
+# Add several jobs through UI
+# Change statuses
+# Delete a job
+# Verify everything works through UI
 ```
 
 ---
 
 ## Iteration 4: LLM - Extract Job Info 🤖
 
-**Цель:** Автоматическое извлечение title и company из описания
+**Goal:** Automatic extraction of title and company from description
 
 ### Tasks
-- [x] Создать `app/prompts.py` с промптами
-- [x] Создать `app/llm.py` с функцией `extract_job_info()`
-- [x] Создать endpoint `POST /api/extract-job-info`
-- [x] Добавить логирование в таблицу `llm_logs`
-- [x] Интегрировать в UI: автозаполнение при добавлении job
-- [x] Обработка ошибок LLM
+- [x] Create `app/prompts.py` with prompts
+- [x] Create `app/llm.py` with `extract_job_info()` function
+- [x] Create endpoint `POST /api/extract-job-info`
+- [x] Add logging to `llm_logs` table
+- [x] Integrate into UI: autofill when adding job
+- [x] LLM error handling
 
 ### Test
 ```bash
-# В UI вставить только job_url и description
-# Нажать "Add Job"
-# Проверить что title и company заполнились автоматически
-# Проверить что в консоли есть лог LLM вызова
-# Проверить что в таблице llm_logs появилась запись
+# In UI paste only job_url and description
+# Click "Add Job"
+# Verify that title and company were filled automatically
+# Verify that console has LLM call log
+# Verify that llm_logs table has new entry
 ```
 
 ---
 
 ## Iteration 5: LLM - Visa Sponsorship 🌍
 
-**Цель:** Анализ visa sponsorship через LLM
+**Goal:** Visa sponsorship analysis via LLM
 
 ### Tasks
-- [x] Добавить промпт `visa_sponsorship` в `prompts.py`
-- [x] Добавить функцию `analyze_visa_sponsorship()` в `llm.py`
-- [x] Создать endpoint `POST /api/analyze-sponsorship`
-- [x] Добавить кнопку "Check Sponsorship" в UI
-- [x] Показывать результат (badge или icon)
-- [x] Сохранять результат в БД
+- [x] Add `visa_sponsorship` prompt to `prompts.py`
+- [x] Add `analyze_visa_sponsorship()` function to `llm.py`
+- [x] Create endpoint `POST /api/analyze-sponsorship`
+- [x] Add "Check Sponsorship" button to UI
+- [x] Display result (badge or icon)
+- [x] Save result to database
 
 ### Test
 ```bash
-# В UI нажать "Check Sponsorship" на job
-# Проверить что появился badge (Yes/No/Unknown)
-# Проверить что в БД заполнилось has_visa_sponsorship
-# Проверить логи в консоли
+# In UI click "Check Sponsorship" on a job
+# Verify that badge appeared (Yes/No/Unknown)
+# Verify that has_visa_sponsorship was filled in database
+# Check console logs
 ```
 
 ---
 
 ## Iteration 6: LLM - Resume Match 📊
 
-**Цель:** Анализ соответствия резюме вакансии
+**Goal:** Resume-job matching analysis
 
 ### Tasks
-- [x] Создать `templates/user_resume.txt` с примером резюме
-- [x] Добавить промпт `resume_match` в `prompts.py`
-- [x] Добавить функцию `analyze_resume_match()` в `llm.py`
-- [x] Создать endpoint `POST /api/analyze-match`
-- [x] Добавить кнопку "Analyze Match" в UI
-- [x] Показывать процент соответствия и объяснение
+- [x] Create `templates/user_resume.txt` with sample resume
+- [x] Add `resume_match` prompt to `prompts.py`
+- [x] Add `analyze_resume_match()` function to `llm.py`
+- [x] Create endpoint `POST /api/analyze-match`
+- [x] Add "Analyze Match" button to UI
+- [x] Display match percentage and explanation
 
 ### Test
 ```bash
-# Создать templates/user_resume.txt с тестовым резюме
-# В UI нажать "Analyze Match" на job
-# Проверить что показался процент (0-100%)
-# Проверить что есть объяснение
-# Проверить что сохранилось в БД
+# Create templates/user_resume.txt with test resume
+# In UI click "Analyze Match" on a job
+# Verify that percentage is displayed (0-100%)
+# Verify that explanation is shown
+# Verify that it was saved to database
 ```
 
 ---
 
 ## Iteration 7: LLM - Cover Letter ✉️
 
-**Цель:** Генерация персонализированного cover letter
+**Goal:** Generate personalized cover letter
 
 ### Tasks
-- [x] Создать `templates/cover_letter_base.txt` с базовым шаблоном
-- [x] Добавить промпт `cover_letter` в `prompts.py`
-- [x] Добавить функцию `generate_cover_letter()` в `llm.py`
-- [x] Создать endpoint `POST /api/generate-cover-letter`
-- [x] Добавить кнопку "Generate Cover Letter" в UI
-- [x] Модальное окно для показа письма
-- [x] Кнопка копирования в буфер обмена
+- [x] Create `templates/cover_letter_base.txt` with base template
+- [x] Add `cover_letter` prompt to `prompts.py`
+- [x] Add `generate_cover_letter()` function to `llm.py`
+- [x] Create endpoint `POST /api/generate-cover-letter`
+- [x] Add "Generate Cover Letter" button to UI
+- [x] Modal window to display letter
+- [x] Copy to clipboard button
 
 ### Test
 ```bash
-# Создать templates/cover_letter_base.txt с шаблоном
-# В UI нажать "Generate Cover Letter" на job
-# Проверить что открылось модальное окно с письмом
-# Скопировать письмо через кнопку
-# Проверить что письмо сохранилось в БД
+# Create templates/cover_letter_base.txt with template
+# In UI click "Generate Cover Letter" on a job
+# Verify that modal window opened with letter
+# Copy letter via button
+# Verify that letter was saved to database
 ```
 
 ---
 
 ## Iteration 8: Statistics & Monitoring 📈
 
-**Цель:** Страница статистики использования LLM
+**Goal:** LLM usage statistics page
 
 ### Tasks
-- [x] Создать endpoint `GET /api/stats`
-- [x] Подсчёт статистики из таблицы `llm_logs`
-- [x] Создать страницу `/stats` в UI
-- [x] Показывать общее количество запросов
-- [x] Показывать использованные токены
-- [x] Показывать примерную стоимость
-- [x] Разбивка по функциям
-- [x] График или таблица статистики
+- [x] Create endpoint `GET /api/stats`
+- [x] Calculate statistics from `llm_logs` table
+- [x] Create `/stats` page in UI
+- [x] Display total number of requests
+- [x] Display tokens used
+- [x] Display estimated cost
+- [x] Breakdown by function
+- [x] Statistics chart or table
 
 ### Test
 ```bash
-# Открыть http://localhost:8000/stats
-# Проверить что показывается статистика
-# Проверить подсчёт токенов
-# Проверить расчёт стоимости
-# Проверить разбивку по типам запросов
+# Open http://localhost:8000/stats
+# Verify that statistics are displayed
+# Verify token counting
+# Verify cost calculation
+# Verify breakdown by request type
 ```
 
 ---
 
 ## Iteration 9: Polish & Production Ready 🎯
 
-**Цель:** Финальная полировка и готовность к использованию
+**Goal:** Final polish and production readiness
 
 ### Tasks
-- [x] Улучшить UI/UX (стили, адаптивность)
-- [x] Добавить обработку всех edge cases
-- [x] Добавить loading indicators для LLM запросов
-- [x] Добавить toast notifications для успеха/ошибок
-- [x] Проверить все error messages
-- [x] Обновить README.md с инструкциями
-- [x] Финальное тестирование всех сценариев
-- [x] Создать примеры файлов templates/
+- [x] Improve UI/UX (styles, responsiveness)
+- [x] Add handling for all edge cases
+- [x] Add loading indicators for LLM requests
+- [x] Add toast notifications for success/errors
+- [x] Check all error messages
+- [x] Update README.md with instructions
+- [x] Final testing of all scenarios
+- [x] Create example templates/ files
 
 ### Test
 ```bash
-# Полный цикл тестирования:
-# 1. Добавить 5 jobs (автоизвлечение info)
-# 2. Проверить sponsorship на всех
-# 3. Проанализировать match на 3 jobs
-# 4. Сгенерировать cover letter для 2 jobs
-# 5. Изменить статусы (new → applied → interview → offer)
-# 6. Проверить автозаполнение дат
-# 7. Открыть статистику и проверить данные
-# 8. Всё должно работать без ошибок
+# Full test cycle:
+# 1. Add 5 jobs (auto-extract info)
+# 2. Check sponsorship on all
+# 3. Analyze match on 3 jobs
+# 4. Generate cover letter for 2 jobs
+# 5. Change statuses (new → applied → interview → offer)
+# 6. Verify automatic date filling
+# 7. Open statistics and check data
+# 8. Everything should work without errors
 ```
 
 ---
 
 ## 🎉 Done!
 
-После завершения всех итераций у вас будет полностью рабочее MVP приложение Job Search Helper.
+After completing all iterations you will have a fully working MVP of Job Search Helper.
 
-**Следующие шаги после MVP:**
-- Собрать feedback от реального использования
-- Определить что улучшить
-- Приоритизировать новые фичи на основе опыта
+**Next steps after MVP:**
+- Collect feedback from real usage
+- Identify what to improve
+- Prioritize new features based on experience
 
 ---
 
 ## Iteration 10: Token Optimization 💰
 
-**Цель:** Объединить LLM анализы для экономии токенов
+**Goal:** Combine LLM analyses to save tokens
 
 ### Tasks
-- [x] Создать комплексный промпт `analyze_job_complete`
-- [x] Добавить функцию `analyze_job_complete()` в `llm.py`
-- [x] Обновить endpoint `POST /api/jobs` для автоматического анализа
-- [x] Удалить старые endpoints (extract-job-info, analyze-sponsorship, analyze-match)
-- [x] Обновить frontend - убрать кнопки "Check Visa" и "Analyze Match"
-- [x] Добавить badge "N/A" для неопределённого спонсорства
-- [x] Обновить логику: null = N/A, false = явно нет, true = явно да
-- [x] Обновить README.md с новой инструкцией
-- [x] Протестировать автоматический анализ
+- [x] Create comprehensive `analyze_job_complete` prompt
+- [x] Add `analyze_job_complete()` function to `llm.py`
+- [x] Update `POST /api/jobs` endpoint for automatic analysis
+- [x] Remove old endpoints (extract-job-info, analyze-sponsorship, analyze-match)
+- [x] Update frontend - remove "Check Visa" and "Analyze Match" buttons
+- [x] Add "N/A" badge for undefined sponsorship
+- [x] Update logic: null = N/A, false = explicitly no, true = explicitly yes
+- [x] Update README.md with new instructions
+- [x] Test automatic analysis
 
 ### Test
 ```bash
-# Открыть http://localhost:8000
-# Добавить job с описанием
-# Проверить что автоматически заполнились:
-#  - Title и Company (если не указаны)
+# Open http://localhost:8000
+# Add job with description
+# Verify that the following were filled automatically:
+#  - Title and Company (if not specified)
 #  - Visa Sponsorship (Yes/No/N/A)
 #  - Resume Match (%)
-# Проверить в статистике - должна быть одна функция analyze_job_complete
-# Проверить логи - один LLM вызов вместо трёх
+# Check statistics - should have one analyze_job_complete function
+# Check logs - one LLM call instead of three
 ```
 
-**Экономия:** ~60% токенов (1 запрос вместо 3 раздельных)
+**Savings:** ~60% tokens (1 request instead of 3 separate)
 
 ---
 
 ## Iteration 11: Tooltips for Analysis 💬
 
-**Цель:** Показывать детальный анализ при наведении курсора
+**Goal:** Display detailed analysis on hover
 
 ### Tasks
-- [x] Добавить CSS для tooltips с анимацией
-- [x] Обновить JavaScript для добавления tooltip-wrapper
-- [x] Добавить tooltip для Visa Sponsorship badge (показывать sponsorship_analysis)
-- [x] Добавить tooltip для Resume Match badge (показывать match_analysis)
-- [x] Адаптировать для мобильных устройств
-- [x] Исправить обрезание tooltip по краю таблицы (overflow: visible)
-- [x] Улучшить промпт visa analysis - добавить анализ компании и вероятности
-- [x] Удалить неиспользуемые промпты (extract_job_info, visa_sponsorship, resume_match)
-- [x] Удалить неиспользуемые функции из llm.py
-- [x] Исправить строгую логику visa_sponsorship (только при явном упоминании)
-- [x] Улучшить visa_analysis - четкая структура с обязательной оценкой вероятности
-- [x] Улучшить match_analysis - списки сильных и слабых сторон
-- [x] Увеличить OPENAI_MAX_TOKENS до 1500 для детальных ответов
-- [x] Исправить ошибку сохранения dict в БД (конвертация в JSON string)
-- [x] Усилить промпт для обязательного детального анализа визы (4 секции)
-- [x] Добавить переносы строк в tooltip для читаемости
-- [x] Увеличить ширину tooltip до 400px и добавить max-height
-- [x] Сделать промпт МАКСИМАЛЬНО строгим с обязательными требованиями
-- [x] Добавить конкретный пример хорошего visa_analysis
-- [x] Повысить OPENAI_TEMPERATURE до 0.5 для более креативного анализа
-- [x] Исправить JSON parsing error - требовать \\n вместо настоящих переносов
-- [x] Добавить fallback обработку control characters в llm.py
-- [x] Обновить примеры с правильным JSON форматом (\\n\\n)
-- [x] Переписать промпт с явными SECTION 1-4 и императивами "YOU MUST"
-- [x] Добавить "DO NOT STOP after 'not mentioned'" предупреждение
-- [x] Добавить FINAL REMINDER в конец промпта
-- [x] ИСПРАВИТЬ fallback в llm.py - конвертировать переносы в \\n, а не в пробелы
-- [x] Добавить детальное логирование в llm.py (длина, preview)
-- [x] Добавить детальное логирование в main.py перед сохранением в БД
-- [x] Протестировать с исправленным fallback и логами
+- [x] Add CSS for tooltips with animation
+- [x] Update JavaScript to add tooltip-wrapper
+- [x] Add tooltip for Visa Sponsorship badge (show sponsorship_analysis)
+- [x] Add tooltip for Resume Match badge (show match_analysis)
+- [x] Adapt for mobile devices
+- [x] Fix tooltip clipping at table edge (overflow: visible)
+- [x] Improve visa analysis prompt - add company analysis and likelihood
+- [x] Remove unused prompts (extract_job_info, visa_sponsorship, resume_match)
+- [x] Remove unused functions from llm.py
+- [x] Fix strict visa_sponsorship logic (only on explicit mention)
+- [x] Improve visa_analysis - clear structure with mandatory likelihood assessment
+- [x] Improve match_analysis - lists of strengths and weaknesses
+- [x] Increase OPENAI_MAX_TOKENS to 1500 for detailed responses
+- [x] Fix error saving dict to database (convert to JSON string)
+- [x] Strengthen prompt for mandatory detailed visa analysis (4 sections)
+- [x] Add line breaks in tooltip for readability
+- [x] Increase tooltip width to 400px and add max-height
+- [x] Make prompt MAXIMALLY strict with mandatory requirements
+- [x] Add concrete example of good visa_analysis
+- [x] Increase OPENAI_TEMPERATURE to 0.5 for more creative analysis
+- [x] Fix JSON parsing error - require \\n instead of real newlines
+- [x] Add fallback handling for control characters in llm.py
+- [x] Update examples with correct JSON format (\\n\\n)
+- [x] Rewrite prompt with explicit SECTION 1-4 and "YOU MUST" imperatives
+- [x] Add "DO NOT STOP after 'not mentioned'" warning
+- [x] Add FINAL REMINDER at end of prompt
+- [x] FIX fallback in llm.py - convert newlines to \\n, not to spaces
+- [x] Add detailed logging in llm.py (length, preview)
+- [x] Add detailed logging in main.py before saving to database
+- [x] Test with fixed fallback and logs
 
 ### Test
 ```bash
-# Открыть http://localhost:8000
-# Добавить job с описанием
-# Навести курсор на "✓ Yes" или "✗ No" или "N/A" badge для visa sponsorship
-# Должен появиться tooltip с детальным анализом
-# Навести курсор на процент match (например "75%")
-# Должен появиться tooltip с анализом соответствия
-# Проверить на мобильном (tooltip должен быть адаптирован)
+# Open http://localhost:8000
+# Add job with description
+# Hover over "✓ Yes" or "✗ No" or "N/A" badge for visa sponsorship
+# Tooltip with detailed analysis should appear
+# Hover over match percentage (e.g. "75%")
+# Tooltip with match analysis should appear
+# Test on mobile (tooltip should be adapted)
 ```
 
-**Улучшение UX:** Пользователь видит детали без лишних кликов!
+**UX Improvement:** User sees details without extra clicks!
 
 ---
 
 ## Iteration 12: Sorting & Filters 🔍
 
-**Цель:** Добавить возможность сортировки и фильтрации вакансий в таблице
+**Goal:** Add sorting and filtering capability for jobs table
 
 ### Tasks
-- [x] Добавить UI для фильтров (статус, виза, match %)
-- [x] Добавить UI для сортировки (кликабельные заголовки колонок)
-- [x] Реализовать клиентскую фильтрацию в JavaScript
-- [x] Реализовать клиентскую сортировку в JavaScript
-- [x] Добавить индикаторы активной сортировки (стрелки ▲▼)
-- [x] Сохранять состояние фильтров/сортировки в localStorage
-- [x] Добавить кнопку "Сбросить фильтры"
-- [x] Адаптировать для мобильных устройств
+- [x] Add UI for filters (status, visa, match %)
+- [x] Add UI for sorting (clickable column headers)
+- [x] Implement client-side filtering in JavaScript
+- [x] Implement client-side sorting in JavaScript
+- [x] Add active sorting indicators (arrows ▲▼)
+- [x] Save filters/sorting state to localStorage
+- [x] Add "Reset Filters" button
+- [x] Adapt for mobile devices
 
 ### Test
 ```bash
-# Открыть http://localhost:8000
-# Добавить несколько jobs с разными статусами, visa, match %
-# Проверить фильтрацию по каждому параметру
-# Проверить сортировку по каждой колонке (A-Z, Z-A)
-# Проверить комбинацию фильтров + сортировка
-# Проверить "Сбросить фильтры"
+# Open http://localhost:8000
+# Add several jobs with different statuses, visa, match %
+# Test filtering by each parameter
+# Test sorting by each column (A-Z, Z-A)
+# Test combination of filters + sorting
+# Test "Reset Filters"
 ```
 
-**Улучшение UX:** Быстрый поиск нужных вакансий среди большого списка!
+**UX Improvement:** Quick search for needed jobs in a large list!
 
 ---
 
-**Документация:**
-- [vision.md](../vision.md) - техническое видение
-- [conventions.md](../conventions.md) - правила разработки
-- [idea.md](../idea.md) - описание идеи
+**Documentation:**
+- [vision.md](../vision.md) - technical vision
+- [conventions.md](../conventions.md) - development rules
+- [idea.md](../idea.md) - idea description
 
