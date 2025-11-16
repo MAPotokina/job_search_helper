@@ -485,6 +485,26 @@ button:disabled {
     background-color: #5a6268;
 }
 
+/* Job Title Link */
+.job-link {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.job-link:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+.job-link:visited {
+    color: #8e44ad;
+}
+
+.job-link strong {
+    color: inherit;
+}
+
 /* Sortable Table Headers */
 th.sortable {
     cursor: pointer;

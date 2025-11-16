@@ -242,9 +242,15 @@ function renderJobs(jobs) {
         return;
     }
     
-    tbody.innerHTML = jobs.map(job => `
+    tbody.innerHTML = jobs.map(job => {
+        console.log('Rendering job:', job.title, 'URL:', job.job_url);
+        return `
         <tr>
-            <td><strong>${escapeHtml(job.title)}</strong></td>
+            <td>
+                ${job.job_url 
+                    ? `<a href="${escapeHtml(job.job_url)}" target="_blank" rel="noopener noreferrer" class="job-link"><strong>${escapeHtml(job.title)}</strong></a>`
+                    : `<strong>${escapeHtml(job.title)}</strong>`}
+            </td>
             <td>${escapeHtml(job.company)}</td>
             <td>
                 ${job.has_visa_sponsorship === true 
@@ -275,7 +281,8 @@ function renderJobs(jobs) {
                 <button onclick="deleteJob(${job.id})" class="btn-delete">Delete</button>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Форматирование даты

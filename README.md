@@ -80,10 +80,28 @@ http://localhost:8000
 
 For each job, you can:
 
+- **Click Job Title**: If a job URL is provided, the title becomes a clickable link (opens in new tab)
 - **View Analysis**: See visa sponsorship and resume match automatically
+- **Hover for Details**: Hover over visa/match badges to see detailed AI analysis
 - **Generate Cover Letter**: Click "Cover Letter" to create a personalized letter
 - **Update Status**: Change status from dropdown (new → applied → interview → offer/rejected)
 - **Delete**: Remove unwanted jobs
+
+### Filtering & Sorting
+
+**Filters:**
+- **Status**: Filter by job status (New, Applied, Interview, Offer, Rejected)
+- **Visa**: Filter by sponsorship (Yes, No, N/A)
+- **Match**: Filter by resume match percentage (≥80%, ≥60%, ≥40%, <40%)
+- Multiple filters can be combined
+- Filters are saved in browser (persist after page reload)
+- Click "🔄 Reset Filters" to clear all
+
+**Sorting:**
+- Click any table header to sort by that column
+- First click: ascending ▲
+- Second click: descending ▼
+- Works with all columns (Title, Company, Visa, Match, Status, Dates)
 
 ### Status Workflow
 
