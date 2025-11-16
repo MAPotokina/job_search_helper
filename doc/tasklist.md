@@ -5,7 +5,7 @@
 | Iteration | Название | Статус | Дата завершения | Тест пройден |
 |-----------|----------|--------|-----------------|--------------|
 | 0 | Project Setup | ✅ Done | 2025-11-16 | ✅ |
-| 1 | Database & Models | ⏳ Pending | - | ❌ |
+| 1 | Database & Models | ✅ Done | 2025-11-16 | ✅ |
 | 2 | Basic CRUD API | ⏳ Pending | - | ❌ |
 | 3 | Frontend UI | ⏳ Pending | - | ❌ |
 | 4 | LLM: Extract Job Info | ⏳ Pending | - | ❌ |
@@ -50,10 +50,10 @@
 **Цель:** Создать базу данных и модели
 
 ### Tasks
-- [ ] Создать `app/database.py` (SQLAlchemy setup)
-- [ ] Создать `app/models.py` с моделями `Job` и `LLMLog`
-- [ ] Добавить автосоздание таблиц при старте
-- [ ] Создать endpoint `GET /api/health` для проверки БД
+- [x] Создать `app/database.py` (SQLAlchemy setup)
+- [x] Создать `app/models.py` с моделями `Job` и `LLMLog`
+- [x] Добавить автосоздание таблиц при старте
+- [x] Создать endpoint `GET /api/health` для проверки БД
 
 ### Test
 ```bash
