@@ -1,3 +1,32 @@
+// Toast notification system
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Loading indicator helpers
+function showLoading(button) {
+    if (!button) return;
+    button.disabled = true;
+    button.dataset.originalText = button.textContent;
+    button.textContent = '⏳ Processing...';
+}
+
+function hideLoading(button) {
+    if (!button) return;
+    button.disabled = false;
+    button.textContent = button.dataset.originalText;
+}
+
 // Загрузка всех jobs
 async function loadJobs() {
     try {
@@ -7,6 +36,7 @@ async function loadJobs() {
         updateJobCount(jobs.length);
     } catch (error) {
         console.error('Error loading jobs:', error);
+        showToast('❌ Error loading jobs', 'error');
     }
 }
 
@@ -33,12 +63,12 @@ function renderJobs(jobs) {
                     ? '<span class="badge badge-yes">✓ Visa</span>' 
                     : job.has_visa_sponsorship === false 
                     ? '<span class="badge badge-no">✗ No Visa</span>' 
-                    : '<button onclick="checkSponsorship(' + job.id + ')" class="btn-check">Check Visa</button>'}
+                    : '<button onclick="checkSponsorship(' + job.id + ', this)" class="btn-check">Check Visa</button>'}
             </td>
             <td>
                 ${job.resume_match_percentage !== null
                     ? '<span class="match-badge match-' + getMatchClass(job.resume_match_percentage) + '">' + job.resume_match_percentage + '%</span>'
-                    : '<button onclick="analyzeMatch(' + job.id + ')" class="btn-check">Analyze Match</button>'}
+                    : '<button onclick="analyzeMatch(' + job.id + ', this)" class="btn-check">Analyze Match</button>'}
             </td>
             <td>
                 <select onchange="updateStatus(${job.id}, this.value)" class="status-${job.status}">
@@ -53,7 +83,7 @@ function renderJobs(jobs) {
             <td>${job.response_date ? formatDate(job.response_date) : '-'}</td>
             <td>${job.days_to_response !== null ? job.days_to_response + ' days' : '-'}</td>
             <td>
-                <button onclick="generateCoverLetter(${job.id})" class="btn-generate">Cover Letter</button>
+                <button onclick="generateCoverLetter(${job.id}, this)" class="btn-generate">Cover Letter</button>
                 <button onclick="deleteJob(${job.id})" class="btn-delete">Delete</button>
             </td>
         </tr>
@@ -81,9 +111,12 @@ function escapeHtml(text) {
 document.getElementById('jobForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    const submitBtn = e.target.querySelector('button[type="submit"]');
     const description = document.getElementById('description').value;
     let title = document.getElementById('title').value;
     let company = document.getElementById('company').value;
+    
+    showLoading(submitBtn);
     
     // Если нет title/company, но есть description - извлекаем через LLM
     if (description && (!title || !company)) {
@@ -98,16 +131,18 @@ document.getElementById('jobForm').addEventListener('submit', async (e) => {
                 const extracted = await extractResponse.json();
                 if (!title) title = extracted.title;
                 if (!company) company = extracted.company;
-                console.log('Auto-extracted:', extracted);
+                showToast('✨ Job info extracted automatically', 'info');
             }
         } catch (error) {
             console.error('Error extracting job info:', error);
+            showToast('⚠️ Auto-extraction failed, please fill manually', 'error');
         }
     }
     
     // Проверяем что есть минимум title и company
     if (!title || !company) {
-        alert('Title and Company are required');
+        showToast('❌ Title and Company are required', 'error');
+        hideLoading(submitBtn);
         return;
     }
     
@@ -127,14 +162,17 @@ document.getElementById('jobForm').addEventListener('submit', async (e) => {
         });
         
         if (response.ok) {
+            showToast('✅ Job added successfully!', 'success');
             e.target.reset();
             loadJobs();
         } else {
-            alert('Error creating job');
+            showToast('❌ Error creating job', 'error');
         }
     } catch (error) {
         console.error('Error creating job:', error);
-        alert('Error creating job');
+        showToast('❌ Network error. Please try again.', 'error');
+    } finally {
+        hideLoading(submitBtn);
     }
 });
 
@@ -148,13 +186,14 @@ async function updateStatus(jobId, status) {
         });
         
         if (response.ok) {
+            showToast('✅ Status updated', 'success');
             loadJobs();
         } else {
-            alert('Error updating status');
+            showToast('❌ Error updating status', 'error');
         }
     } catch (error) {
         console.error('Error updating status:', error);
-        alert('Error updating status');
+        showToast('❌ Error updating status', 'error');
     }
 }
 
@@ -170,13 +209,14 @@ async function deleteJob(jobId) {
         });
         
         if (response.ok) {
+            showToast('✅ Job deleted', 'success');
             loadJobs();
         } else {
-            alert('Error deleting job');
+            showToast('❌ Error deleting job', 'error');
         }
     } catch (error) {
         console.error('Error deleting job:', error);
-        alert('Error deleting job');
+        showToast('❌ Error deleting job', 'error');
     }
 }
 
@@ -188,44 +228,55 @@ function getMatchClass(percentage) {
 }
 
 // Проверка visa sponsorship
-async function checkSponsorship(jobId) {
+async function checkSponsorship(jobId, button) {
+    showLoading(button);
     try {
         const response = await fetch(`/api/analyze-sponsorship/${jobId}`, {
             method: 'POST'
         });
         
         if (response.ok) {
+            showToast('✅ Visa sponsorship analyzed!', 'success');
             loadJobs();
         } else {
-            alert('Error analyzing sponsorship');
+            const error = await response.json();
+            showToast('❌ Error: ' + (error.detail || 'Unknown error'), 'error');
         }
     } catch (error) {
         console.error('Error checking sponsorship:', error);
-        alert('Error analyzing sponsorship');
+        showToast('❌ Network error. Please try again.', 'error');
+    } finally {
+        hideLoading(button);
     }
 }
 
 // Анализ соответствия резюме
-async function analyzeMatch(jobId) {
+async function analyzeMatch(jobId, button) {
+    showLoading(button);
     try {
         const response = await fetch(`/api/analyze-match/${jobId}`, {
             method: 'POST'
         });
         
         if (response.ok) {
+            const job = await response.json();
+            showToast(`✅ Resume match: ${job.resume_match_percentage}%`, 'success');
             loadJobs();
         } else {
             const error = await response.json();
-            alert('Error analyzing match: ' + (error.detail || 'Unknown error'));
+            showToast('❌ Error: ' + (error.detail || 'Unknown error'), 'error');
         }
     } catch (error) {
         console.error('Error analyzing match:', error);
-        alert('Error analyzing match');
+        showToast('❌ Network error. Please try again.', 'error');
+    } finally {
+        hideLoading(button);
     }
 }
 
 // Генерация cover letter
-async function generateCoverLetter(jobId) {
+async function generateCoverLetter(jobId, button) {
+    showLoading(button);
     try {
         const response = await fetch(`/api/generate-cover-letter/${jobId}`, {
             method: 'POST'
@@ -233,15 +284,18 @@ async function generateCoverLetter(jobId) {
         
         if (response.ok) {
             const job = await response.json();
+            showToast('✅ Cover letter generated!', 'success');
             showCoverLetterModal(job.cover_letter);
             loadJobs();
         } else {
             const error = await response.json();
-            alert('Error generating cover letter: ' + (error.detail || 'Unknown error'));
+            showToast('❌ Error: ' + (error.detail || 'Unknown error'), 'error');
         }
     } catch (error) {
         console.error('Error generating cover letter:', error);
-        alert('Error generating cover letter');
+        showToast('❌ Network error. Please try again.', 'error');
+    } finally {
+        hideLoading(button);
     }
 }
 
@@ -261,7 +315,7 @@ function copyCoverLetter() {
     const text = document.getElementById('coverLetterText');
     text.select();
     document.execCommand('copy');
-    alert('Cover letter copied to clipboard!');
+    showToast('✅ Cover letter copied to clipboard!', 'success');
 }
 
 // Закрыть модальное окно при клике вне его
