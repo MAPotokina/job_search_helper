@@ -1,0 +1,89 @@
+import time
+import json
+from openai import OpenAI
+
+from app.config import (
+    OPENAI_API_KEY, 
+    OPENAI_MODEL, 
+    OPENAI_TEMPERATURE, 
+    OPENAI_MAX_TOKENS,
+    MAX_JOB_DESCRIPTION_LENGTH,
+    logger
+)
+from app.prompts import PROMPTS
+from app.database import SessionLocal
+from app.models import LLMLog
+
+
+# Инициализация OpenAI клиента
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+
+def log_llm_call(function_name: str, status: str, execution_time: float, 
+                 tokens_used: int = None, error_message: str = None):
+    """Логирование LLM вызова в БД"""
+    db = SessionLocal()
+    try:
+        log = LLMLog(
+            function_name=function_name,
+            status=status,
+            execution_time=execution_time,
+            tokens_used=tokens_used,
+            error_message=error_message
+        )
+        db.add(log)
+        db.commit()
+    finally:
+        db.close()
+
+
+def extract_job_info(job_description: str) -> dict:
+    """Извлечение названия позиции и компании из описания вакансии"""
+    start_time = time.time()
+    
+    # Обрезаем длинный текст
+    if len(job_description) > MAX_JOB_DESCRIPTION_LENGTH:
+        job_description = job_description[:MAX_JOB_DESCRIPTION_LENGTH]
+        logger.info(f"Job description truncated to {MAX_JOB_DESCRIPTION_LENGTH} chars")
+    
+    try:
+        prompt = PROMPTS["extract_job_info"].format(job_description=job_description)
+        
+        response = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=OPENAI_TEMPERATURE,
+            max_tokens=OPENAI_MAX_TOKENS
+        )
+        
+        result_text = response.choices[0].message.content.strip()
+        tokens_used = response.usage.total_tokens
+        execution_time = time.time() - start_time
+        
+        # Парсим JSON ответ
+        result = json.loads(result_text)
+        
+        # Логируем успех
+        log_llm_call("extract_job_info", "success", execution_time, tokens_used)
+        logger.info(f"LLM | extract_job_info | SUCCESS | {execution_time:.2f}s | {tokens_used} tokens")
+        
+        return result
+        
+    except json.JSONDecodeError as e:
+        execution_time = time.time() - start_time
+        error_msg = f"JSON parsing error: {str(e)}"
+        
+        log_llm_call("extract_job_info", "error", execution_time, error_message=error_msg)
+        logger.error(f"LLM | extract_job_info | ERROR | {execution_time:.2f}s | {error_msg}")
+        
+        return {"title": "Unknown Position", "company": "Unknown Company"}
+        
+    except Exception as e:
+        execution_time = time.time() - start_time
+        error_msg = str(e)
+        
+        log_llm_call("extract_job_info", "error", execution_time, error_message=error_msg)
+        logger.error(f"LLM | extract_job_info | ERROR | {execution_time:.2f}s | {error_msg}")
+        
+        return {"title": "Unknown Position", "company": "Unknown Company"}
+

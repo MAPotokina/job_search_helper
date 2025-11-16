@@ -8,7 +8,7 @@
 | 1 | Database & Models | ✅ Done | 2025-11-16 | ✅ |
 | 2 | Basic CRUD API | ✅ Done | 2025-11-16 | ✅ |
 | 3 | Frontend UI | ✅ Done | 2025-11-16 | ✅ |
-| 4 | LLM: Extract Job Info | ⏳ Pending | - | ❌ |
+| 4 | LLM: Extract Job Info | ✅ Done | 2025-11-16 | ✅ |
 | 5 | LLM: Visa Sponsorship | ⏳ Pending | - | ❌ |
 | 6 | LLM: Resume Match | ⏳ Pending | - | ❌ |
 | 7 | LLM: Cover Letter | ⏳ Pending | - | ❌ |
@@ -129,12 +129,12 @@ curl -X PUT http://localhost:8000/api/jobs/1 \
 **Цель:** Автоматическое извлечение title и company из описания
 
 ### Tasks
-- [ ] Создать `app/prompts.py` с промптами
-- [ ] Создать `app/llm.py` с функцией `extract_job_info()`
-- [ ] Создать endpoint `POST /api/extract-job-info`
-- [ ] Добавить логирование в таблицу `llm_logs`
-- [ ] Интегрировать в UI: автозаполнение при добавлении job
-- [ ] Обработка ошибок LLM
+- [x] Создать `app/prompts.py` с промптами
+- [x] Создать `app/llm.py` с функцией `extract_job_info()`
+- [x] Создать endpoint `POST /api/extract-job-info`
+- [x] Добавить логирование в таблицу `llm_logs`
+- [x] Интегрировать в UI: автозаполнение при добавлении job
+- [x] Обработка ошибок LLM
 
 ### Test
 ```bash

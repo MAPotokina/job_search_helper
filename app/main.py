@@ -10,6 +10,7 @@ from app.config import logger
 from app.database import init_db, get_db
 from app.models import Job
 from app.schemas import JobCreate, JobUpdate, JobResponse
+from app.llm import extract_job_info
 
 app = FastAPI(title="Job Search Helper")
 
@@ -40,6 +41,21 @@ async def health_check(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Database health check failed: {e}")
         return {"status": "error", "database": "disconnected"}
+
+
+# LLM Endpoints
+
+
+@app.post("/api/extract-job-info")
+async def extract_job_info_endpoint(request: dict):
+    """Извлечение title и company из описания вакансии"""
+    job_description = request.get("job_description", "")
+    
+    if not job_description:
+        raise HTTPException(status_code=400, detail="job_description is required")
+    
+    result = extract_job_info(job_description)
+    return result
 
 
 # CRUD Endpoints для Jobs

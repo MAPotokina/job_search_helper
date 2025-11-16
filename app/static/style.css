@@ -36,6 +36,15 @@ h2 {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+.hint {
+    background: #e7f3ff;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    color: #0066cc;
+    font-size: 14px;
+}
+
 .form-group {
     margin-bottom: 15px;
 }

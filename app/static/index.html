@@ -13,12 +13,13 @@
         <!-- Форма добавления job -->
         <div class="add-job-form">
             <h2>Add New Job</h2>
+            <p class="hint">💡 Leave Title and Company empty to auto-extract from description using AI</p>
             <form id="jobForm">
                 <div class="form-group">
-                    <input type="text" id="title" placeholder="Job Title *" required>
+                    <input type="text" id="title" placeholder="Job Title (optional if description provided)">
                 </div>
                 <div class="form-group">
-                    <input type="text" id="company" placeholder="Company *" required>
+                    <input type="text" id="company" placeholder="Company (optional if description provided)">
                 </div>
                 <div class="form-group">
                     <input type="url" id="jobUrl" placeholder="Job URL">

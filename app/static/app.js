@@ -68,11 +68,41 @@ function escapeHtml(text) {
 document.getElementById('jobForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    const description = document.getElementById('description').value;
+    let title = document.getElementById('title').value;
+    let company = document.getElementById('company').value;
+    
+    // Если нет title/company, но есть description - извлекаем через LLM
+    if (description && (!title || !company)) {
+        try {
+            const extractResponse = await fetch('/api/extract-job-info', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({job_description: description})
+            });
+            
+            if (extractResponse.ok) {
+                const extracted = await extractResponse.json();
+                if (!title) title = extracted.title;
+                if (!company) company = extracted.company;
+                console.log('Auto-extracted:', extracted);
+            }
+        } catch (error) {
+            console.error('Error extracting job info:', error);
+        }
+    }
+    
+    // Проверяем что есть минимум title и company
+    if (!title || !company) {
+        alert('Title and Company are required');
+        return;
+    }
+    
     const job = {
-        title: document.getElementById('title').value,
-        company: document.getElementById('company').value,
+        title: title,
+        company: company,
         job_url: document.getElementById('jobUrl').value,
-        job_description: document.getElementById('description').value,
+        job_description: description,
         status: 'new'
     };
     
