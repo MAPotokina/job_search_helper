@@ -187,3 +187,53 @@ def analyze_resume_match(resume: str, job_description: str) -> dict:
         
         return {"match_percentage": 0, "analysis": "Unable to analyze"}
 
+
+def generate_cover_letter(resume: str, template: str, job_description: str, 
+                         job_title: str, company: str) -> dict:
+    """Генерация персонализированного cover letter"""
+    start_time = time.time()
+    
+    # Обрезаем длинные тексты
+    if len(resume) > MAX_RESUME_LENGTH:
+        resume = resume[:MAX_RESUME_LENGTH]
+        logger.info(f"Resume truncated to {MAX_RESUME_LENGTH} chars")
+    if len(job_description) > MAX_JOB_DESCRIPTION_LENGTH:
+        job_description = job_description[:MAX_JOB_DESCRIPTION_LENGTH]
+        logger.info(f"Job description truncated to {MAX_JOB_DESCRIPTION_LENGTH} chars")
+    
+    try:
+        prompt = PROMPTS["cover_letter"].format(
+            resume=resume,
+            template=template,
+            job_title=job_title,
+            company=company,
+            job_description=job_description
+        )
+        
+        response = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=OPENAI_TEMPERATURE,
+            max_tokens=OPENAI_MAX_TOKENS
+        )
+        
+        result_text = response.choices[0].message.content.strip()
+        tokens_used = response.usage.total_tokens
+        execution_time = time.time() - start_time
+        
+        # Для cover letter возвращаем просто текст (не JSON)
+        # Логируем успех
+        log_llm_call("generate_cover_letter", "success", execution_time, tokens_used)
+        logger.info(f"LLM | generate_cover_letter | SUCCESS | {execution_time:.2f}s | {tokens_used} tokens")
+        
+        return {"cover_letter": result_text}
+        
+    except Exception as e:
+        execution_time = time.time() - start_time
+        error_msg = str(e)
+        
+        log_llm_call("generate_cover_letter", "error", execution_time, error_message=error_msg)
+        logger.error(f"LLM | generate_cover_letter | ERROR | {execution_time:.2f}s | {error_msg}")
+        
+        return {"cover_letter": "Unable to generate cover letter"}
+

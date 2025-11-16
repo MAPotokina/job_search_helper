@@ -11,7 +11,7 @@
 | 4 | LLM: Extract Job Info | ✅ Done | 2025-11-16 | ✅ |
 | 5 | LLM: Visa Sponsorship | ✅ Done | 2025-11-16 | ✅ |
 | 6 | LLM: Resume Match | ✅ Done | 2025-11-16 | ✅ |
-| 7 | LLM: Cover Letter | ⏳ Pending | - | ❌ |
+| 7 | LLM: Cover Letter | 🚧 In Progress | - | ❌ |
 | 8 | Statistics & Monitoring | ⏳ Pending | - | ❌ |
 | 9 | Polish & Production Ready | ⏳ Pending | - | ❌ |
 
@@ -197,13 +197,13 @@ curl -X PUT http://localhost:8000/api/jobs/1 \
 **Цель:** Генерация персонализированного cover letter
 
 ### Tasks
-- [ ] Создать `templates/cover_letter_base.txt` с базовым шаблоном
-- [ ] Добавить промпт `cover_letter` в `prompts.py`
-- [ ] Добавить функцию `generate_cover_letter()` в `llm.py`
-- [ ] Создать endpoint `POST /api/generate-cover-letter`
-- [ ] Добавить кнопку "Generate Cover Letter" в UI
-- [ ] Модальное окно для показа письма
-- [ ] Кнопка копирования в буфер обмена
+- [x] Создать `templates/cover_letter_base.txt` с базовым шаблоном
+- [x] Добавить промпт `cover_letter` в `prompts.py`
+- [x] Добавить функцию `generate_cover_letter()` в `llm.py`
+- [x] Создать endpoint `POST /api/generate-cover-letter`
+- [x] Добавить кнопку "Generate Cover Letter" в UI
+- [x] Модальное окно для показа письма
+- [x] Кнопка копирования в буфер обмена
 
 ### Test
 ```bash

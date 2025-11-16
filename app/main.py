@@ -10,7 +10,7 @@ from app.config import logger
 from app.database import init_db, get_db
 from app.models import Job
 from app.schemas import JobCreate, JobUpdate, JobResponse
-from app.llm import extract_job_info, analyze_visa_sponsorship, analyze_resume_match
+from app.llm import extract_job_info, analyze_visa_sponsorship, analyze_resume_match, generate_cover_letter
 
 app = FastAPI(title="Job Search Helper")
 
@@ -106,6 +106,42 @@ async def analyze_match(job_id: int, db: Session = Depends(get_db)):
     db.refresh(job)
     
     logger.info(f"POST /api/analyze-match/{job_id} | Match: {job.resume_match_percentage}%")
+    return job
+
+
+@app.post("/api/generate-cover-letter/{job_id}", response_model=JobResponse)
+async def generate_cover_letter_endpoint(job_id: int, db: Session = Depends(get_db)):
+    """Генерация персонализированного cover letter"""
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    if not job.job_description:
+        raise HTTPException(status_code=400, detail="Job description is required")
+    
+    # Читаем резюме и базовый шаблон
+    try:
+        with open("templates/user_resume.txt", "r") as f:
+            resume = f.read()
+        with open("templates/cover_letter_base.txt", "r") as f:
+            template = f.read()
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=f"Template file not found: {str(e)}")
+    
+    result = generate_cover_letter(
+        resume=resume,
+        template=template,
+        job_description=job.job_description,
+        job_title=job.title,
+        company=job.company
+    )
+    
+    # Сохраняем результат
+    job.cover_letter = result.get("cover_letter")
+    db.commit()
+    db.refresh(job)
+    
+    logger.info(f"POST /api/generate-cover-letter/{job_id} | Cover letter generated")
     return job
 
 

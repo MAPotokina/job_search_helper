@@ -38,8 +38,7 @@ Job Description:
     
     "cover_letter": """Generate a personalized cover letter based on the resume, base template, and job description.
 
-Return ONLY a valid JSON object with this exact format:
-{{"cover_letter": "the complete cover letter text here"}}
+IMPORTANT: Return ONLY the cover letter text, no JSON, no markdown, no extra formatting.
 
 Resume:
 {resume}
@@ -52,6 +51,8 @@ Company: {company}
 
 Job Description:
 {job_description}
+
+Generate a professional cover letter that highlights relevant skills from the resume that match the job requirements.
 """
 }
 

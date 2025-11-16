@@ -53,6 +53,7 @@ function renderJobs(jobs) {
             <td>${job.response_date ? formatDate(job.response_date) : '-'}</td>
             <td>${job.days_to_response !== null ? job.days_to_response + ' days' : '-'}</td>
             <td>
+                <button onclick="generateCoverLetter(${job.id})" class="btn-generate">Cover Letter</button>
                 <button onclick="deleteJob(${job.id})" class="btn-delete">Delete</button>
             </td>
         </tr>
@@ -220,6 +221,54 @@ async function analyzeMatch(jobId) {
     } catch (error) {
         console.error('Error analyzing match:', error);
         alert('Error analyzing match');
+    }
+}
+
+// Генерация cover letter
+async function generateCoverLetter(jobId) {
+    try {
+        const response = await fetch(`/api/generate-cover-letter/${jobId}`, {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            const job = await response.json();
+            showCoverLetterModal(job.cover_letter);
+            loadJobs();
+        } else {
+            const error = await response.json();
+            alert('Error generating cover letter: ' + (error.detail || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error generating cover letter:', error);
+        alert('Error generating cover letter');
+    }
+}
+
+// Показать модальное окно с cover letter
+function showCoverLetterModal(coverLetter) {
+    document.getElementById('coverLetterText').value = coverLetter;
+    document.getElementById('coverLetterModal').style.display = 'block';
+}
+
+// Закрыть модальное окно
+function closeCoverLetterModal() {
+    document.getElementById('coverLetterModal').style.display = 'none';
+}
+
+// Копировать cover letter в буфер обмена
+function copyCoverLetter() {
+    const text = document.getElementById('coverLetterText');
+    text.select();
+    document.execCommand('copy');
+    alert('Cover letter copied to clipboard!');
+}
+
+// Закрыть модальное окно при клике вне его
+window.onclick = function(event) {
+    const modal = document.getElementById('coverLetterModal');
+    if (event.target == modal) {
+        closeCoverLetterModal();
     }
 }
 

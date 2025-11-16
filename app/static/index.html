@@ -59,6 +59,19 @@
         </div>
     </div>
     
+    <!-- Modal для cover letter -->
+    <div id="coverLetterModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCoverLetterModal()">&times;</span>
+            <h2>Cover Letter</h2>
+            <textarea id="coverLetterText" readonly rows="20"></textarea>
+            <div class="modal-buttons">
+                <button onclick="copyCoverLetter()" class="btn-primary">Copy to Clipboard</button>
+                <button onclick="closeCoverLetterModal()" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="/static/app.js"></script>
 </body>
 </html>
