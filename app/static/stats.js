@@ -1,16 +1,16 @@
-// Загрузка статистики LLM
+// Load LLM statistics
 async function loadStats() {
     try {
         const response = await fetch('/api/stats');
         const data = await response.json();
 
-        // Общая статистика
+        // Overall statistics
         document.getElementById('totalCalls').textContent = data.total_calls;
         document.getElementById('successfulCalls').textContent = data.successful_calls;
         document.getElementById('totalTokens').textContent = data.total_tokens.toLocaleString();
         document.getElementById('estimatedCost').textContent = '$' + data.estimated_cost.toFixed(2);
 
-        // Разбивка по функциям
+        // Breakdown by function
         const tbody = document.getElementById('functionStatsBody');
         tbody.innerHTML = '';
         
@@ -36,6 +36,6 @@ async function loadStats() {
     }
 }
 
-// Загрузить при открытии страницы
+// Load on page open
 loadStats();
 

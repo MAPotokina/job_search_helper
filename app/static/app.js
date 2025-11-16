@@ -1,5 +1,5 @@
 // Global state for filtering and sorting
-let allJobs = []; // Полный список jobs
+let allJobs = []; // Full list of jobs
 let activeFilters = {
     status: [],
     visa: [],
@@ -84,7 +84,7 @@ function hideLoading(button) {
     button.textContent = button.dataset.originalText;
 }
 
-// Загрузка всех jobs
+// Load all jobs
 async function loadJobs() {
     try {
         const response = await fetch('/api/jobs');
@@ -104,7 +104,7 @@ function applyFiltersAndSort() {
     updateJobCount(filtered.length, allJobs.length);
 }
 
-// Обновление счётчика jobs
+// Update jobs counter
 function updateJobCount(filtered, total) {
     const countEl = document.getElementById('jobCount');
     if (filtered === total) {
@@ -220,7 +220,7 @@ function sortJobs(jobs) {
     return sorted;
 }
 
-// Отрисовка jobs в таблице
+// Render jobs in table
 function renderJobs(jobs) {
     const tbody = document.getElementById('jobsTableBody');
     
@@ -229,7 +229,7 @@ function renderJobs(jobs) {
     console.log('Sort config:', sortConfig);
     
     if (jobs.length === 0) {
-        // Показываем разное сообщение в зависимости от того, есть ли фильтры
+        // Show different message depending on whether filters are active
         const hasFilters = activeFilters.status.length > 0 || 
                           activeFilters.visa.length > 0 || 
                           activeFilters.match.length > 0;
@@ -285,7 +285,7 @@ function renderJobs(jobs) {
     }).join('');
 }
 
-// Форматирование даты
+// Format date
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -295,7 +295,7 @@ function formatDate(dateString) {
     });
 }
 
-// Экранирование HTML для безопасности, сохраняя переносы строк
+// Escape HTML for security
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -303,19 +303,19 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Для tooltip текста - сохраняем переносы строк
+// For tooltip text - preserve newlines
 function escapeHtmlKeepNewlines(text) {
     if (!text) return '';
-    // Экранируем HTML, затем конвертируем переносы в <br>
+    // Escape HTML, then convert newlines to <br>
     const div = document.createElement('div');
     div.textContent = text;
-    // Заменяем двойные переносы на параграфы, одинарные на <br>
+    // Replace double newlines with paragraphs, single newlines with <br>
     return div.innerHTML
-        .replace(/\n\n+/g, '<br><br>')  // двойные переносы → двойной <br>
-        .replace(/\n/g, '<br>');          // одинарные → один <br>
+        .replace(/\n\n+/g, '<br><br>')  // double newlines → double <br>
+        .replace(/\n/g, '<br>');          // single newlines → single <br>
 }
 
-// Создание нового job
+// Create new job
 document.getElementById('jobForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -324,7 +324,7 @@ document.getElementById('jobForm').addEventListener('submit', async (e) => {
     const title = document.getElementById('title').value;
     const company = document.getElementById('company').value;
     
-    // Проверяем что есть хотя бы description
+    // Check that we have at least description
     if (!description && (!title || !company)) {
         showToast('❌ Please provide at least a job description', 'error');
         return;
@@ -363,7 +363,7 @@ document.getElementById('jobForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Обновление статуса job
+// Update job status
 async function updateStatus(jobId, status) {
     try {
         const response = await fetch(`/api/jobs/${jobId}`, {
@@ -384,7 +384,7 @@ async function updateStatus(jobId, status) {
     }
 }
 
-// Удаление job
+// Delete job
 async function deleteJob(jobId) {
     if (!confirm('Are you sure you want to delete this job?')) {
         return;
@@ -407,14 +407,14 @@ async function deleteJob(jobId) {
     }
 }
 
-// Функция для определения класса match badge
+// Function to determine match badge class
 function getMatchClass(percentage) {
     if (percentage >= 70) return 'high';
     if (percentage >= 40) return 'medium';
     return 'low';
 }
 
-// Генерация cover letter
+// Generate cover letter
 async function generateCoverLetter(jobId, button) {
     showLoading(button);
     try {
@@ -439,18 +439,18 @@ async function generateCoverLetter(jobId, button) {
     }
 }
 
-// Показать модальное окно с cover letter
+// Show cover letter modal window
 function showCoverLetterModal(coverLetter) {
     document.getElementById('coverLetterText').value = coverLetter;
     document.getElementById('coverLetterModal').style.display = 'block';
 }
 
-// Закрыть модальное окно
+// Close modal window
 function closeCoverLetterModal() {
     document.getElementById('coverLetterModal').style.display = 'none';
 }
 
-// Копировать cover letter в буфер обмена
+// Copy cover letter to clipboard
 function copyCoverLetter() {
     const text = document.getElementById('coverLetterText');
     text.select();
@@ -458,7 +458,7 @@ function copyCoverLetter() {
     showToast('✅ Cover letter copied to clipboard!', 'success');
 }
 
-// Закрыть модальное окно при клике вне его
+// Close modal window on click outside
 window.onclick = function(event) {
     const modal = document.getElementById('coverLetterModal');
     if (event.target == modal) {
@@ -466,7 +466,7 @@ window.onclick = function(event) {
     }
 }
 
-// Динамическое позиционирование tooltips
+// Dynamic tooltip positioning
 document.addEventListener('mouseover', function(e) {
     const tooltipWrapper = e.target.closest('.tooltip-wrapper');
     if (tooltipWrapper) {
@@ -566,7 +566,7 @@ function resetFilters() {
     showToast('✅ Filters reset', 'info');
 }
 
-// Загрузка jobs и фильтров при старте страницы
+// Load jobs and filters on page startup
 console.log('=== Job Search Helper - Filters & Sorting Loaded ===');
 console.log('Initial state:', { activeFilters, sortConfig });
 loadFiltersFromStorage();
