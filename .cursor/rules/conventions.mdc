@@ -1,0 +1,180 @@
+---
+alwaysApply: true
+---
+
+# Code Conventions - Job Search Helper
+
+> Правила разработки для code-ассистента. Базируются на [vision.md](vision.md).
+
+## Философия
+
+**KISS (Keep It Simple, Stupid)** - главный принцип. Простота > сложность.
+
+## Структура кода
+
+### Файлы и модули
+- **Один файл = одна ответственность**: `models.py` только модели, `llm.py` только LLM
+- **Плоская структура**: все в `app/`, никаких вложенных пакетов
+- **Все endpoints в `main.py`**: без роутеров, без разделения по файлам
+
+### Naming
+```python
+# Переменные и функции - snake_case
+job_description = "..."
+def analyze_visa_sponsorship():
+
+# Классы - PascalCase
+class Job(Base):
+
+# Константы - UPPER_CASE (только в config.py)
+OPENAI_MAX_TOKENS = 1000
+```
+
+## Database (SQLAlchemy)
+
+```python
+# ✅ Простые модели, минимум связей
+class Job(Base):
+    __tablename__ = "jobs"
+    id = Column(Integer, primary_key=True)
+    title = Column(String(200), nullable=False)
+    # ...
+
+# ✅ Прямые запросы
+jobs = db.query(Job).filter(Job.status == "applied").all()
+
+# ❌ НЕ создавать сложные отношения (relationships, joins)
+# ❌ НЕ использовать сложные query builder паттерны
+```
+
+## LLM Integration
+
+```python
+# ✅ Использовать промпты из prompts.py
+from app.prompts import PROMPTS
+prompt = PROMPTS["visa_sponsorship"]
+
+# ✅ Всегда логировать вызовы в llm_logs таблицу
+log_llm_call(function_name, status, execution_time, tokens_used)
+
+# ✅ Обрезать длинные тексты
+if len(text) > MAX_JOB_DESCRIPTION_LENGTH:
+    text = text[:MAX_JOB_DESCRIPTION_LENGTH]
+
+# ✅ Обрабатывать ошибки - возвращать HTTP error коды
+except Timeout:
+    raise HTTPException(status_code=504, detail="OpenAI timeout")
+
+# ❌ НЕ делать retry на MVP
+# ❌ НЕ использовать async для LLM calls
+```
+
+## API Endpoints
+
+```python
+# ✅ REST стандарт
+@app.get("/api/jobs")           # получить список
+@app.post("/api/jobs")          # создать
+@app.put("/api/jobs/{id}")      # обновить
+@app.delete("/api/jobs/{id}")   # удалить
+
+# ✅ Pydantic схемы для валидации
+def create_job(job: JobCreate):
+    # минимальная валидация через Pydantic
+
+# ✅ Правильные HTTP коды
+return JSONResponse(status_code=201, content=...)
+
+# ❌ НЕ создавать middleware
+# ❌ НЕ использовать dependency injection сложнее чем нужно
+```
+
+## Конфигурация и логирование
+
+```python
+# ✅ Импорты конфигурации
+from app.config import OPENAI_API_KEY, MAX_TOKENS
+from app.prompts import PROMPTS
+
+# ✅ Логирование (только в консоль)
+import logging
+logger = logging.getLogger(__name__)
+logger.info("Job created successfully")
+logger.error(f"OpenAI API error: {error}")
+
+# ❌ НЕ логировать полные тексты (job descriptions, резюме, cover letters)
+# ❌ НЕ логировать API ключи и секреты
+```
+
+## Обработка дат
+
+```python
+# ✅ Автозаполнение при смене статуса
+if new_status == "applied" and not job.applied_date:
+    job.applied_date = datetime.now()
+
+if new_status in ["offer", "rejected"] and not job.response_date:
+    job.response_date = datetime.now()
+    # Автоматически вычисляем
+    job.days_to_response = (job.response_date - job.applied_date).days
+```
+
+## Frontend
+
+```python
+# ✅ Vanilla JavaScript - без фреймворков
+# ✅ Fetch API для запросов
+fetch('/api/jobs')
+    .then(res => res.json())
+    .then(data => renderJobs(data))
+
+# ❌ НЕ использовать React/Vue/Angular
+# ❌ НЕ использовать сборщики (webpack, vite)
+```
+
+## Что ЗАПРЕЩЕНО на MVP
+
+- ❌ Аутентификация/авторизация
+- ❌ Тесты (добавим позже)
+- ❌ Middleware
+- ❌ Кэширование
+- ❌ Async где не нужно (только в FastAPI endpoints)
+- ❌ Сложные паттерны (Factory, Strategy, Observer)
+- ❌ Роутеры, сервисы, репозитории - всё в main.py
+- ❌ Докер, CI/CD, деплой скрипты
+
+## Обработка ошибок
+
+```python
+# ✅ Простой try-except с HTTP ошибками
+try:
+    result = call_openai_api(...)
+except Timeout:
+    raise HTTPException(status_code=504, detail="OpenAI timeout")
+except APIError as e:
+    raise HTTPException(status_code=503, detail=str(e))
+
+# ❌ НЕ создавать custom exceptions классы
+# ❌ НЕ делать retry логику
+```
+
+## Комментарии
+
+```python
+# ✅ Минимум комментариев - код должен быть понятен
+# ✅ Комментировать только неочевидное (например, почему обрезаем текст)
+
+# Обрезаем до 5000 символов из-за лимита OpenAI
+text = text[:MAX_JOB_DESCRIPTION_LENGTH]
+
+# ❌ НЕ комментировать очевидное
+# Создаем job
+job = Job(title=title)  # ❌ плохо
+```
+
+## Главное правило
+
+**Если не уверен - выбирай самое простое решение.**
+
+Смотри [vision.md](vision.md) для деталей по архитектуре, модели данных и сценариям работы.
+
