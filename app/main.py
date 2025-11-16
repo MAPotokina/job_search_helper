@@ -5,6 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
+import json
 
 from app.config import logger
 from app.database import init_db, get_db
@@ -152,6 +153,31 @@ async def create_job(job: JobCreate, db: Session = Depends(get_db)):
             title = job.title if job.title else analysis.get("title", "Unknown Position")
             company = job.company if job.company else analysis.get("company", "Unknown Company")
             
+            # Гарантируем правильный тип для has_visa_sponsorship (только bool или None)
+            visa_value = analysis.get("visa_sponsorship")
+            if visa_value is True or visa_value == True:
+                has_visa = True
+            elif visa_value is False or visa_value == False:
+                has_visa = False
+            else:
+                has_visa = None
+            
+            # Конвертируем dict в JSON строку если нужно
+            visa_analysis = analysis.get("visa_analysis")
+            if isinstance(visa_analysis, dict):
+                visa_analysis = json.dumps(visa_analysis, ensure_ascii=False)
+                logger.warning(f"visa_analysis was dict, converted to JSON string")
+            
+            match_analysis = analysis.get("match_analysis")
+            if isinstance(match_analysis, dict):
+                match_analysis = json.dumps(match_analysis, ensure_ascii=False)
+                logger.warning(f"match_analysis was dict, converted to JSON string")
+            
+            # Логируем что будет сохранено
+            logger.info(f"Saving to DB - visa_analysis length: {len(visa_analysis) if visa_analysis else 0} chars")
+            logger.info(f"Saving to DB - visa_analysis preview: {visa_analysis[:200] if visa_analysis else 'None'}...")
+            logger.info(f"Saving to DB - match_analysis length: {len(match_analysis) if match_analysis else 0} chars")
+            
             # Создаем job с результатами анализа
             db_job = Job(
                 title=title,
@@ -159,10 +185,10 @@ async def create_job(job: JobCreate, db: Session = Depends(get_db)):
                 job_url=job.job_url,
                 job_description=job.job_description,
                 status=job.status,
-                has_visa_sponsorship=analysis.get("visa_sponsorship"),
-                sponsorship_analysis=analysis.get("visa_analysis"),
+                has_visa_sponsorship=has_visa,
+                sponsorship_analysis=visa_analysis,
                 resume_match_percentage=analysis.get("match_percentage"),
-                match_analysis=analysis.get("match_analysis")
+                match_analysis=match_analysis
             )
             logger.info(f"Job analyzed: visa={analysis.get('visa_sponsorship')}, match={analysis.get('match_percentage')}%")
             

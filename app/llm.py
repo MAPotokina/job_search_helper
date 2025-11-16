@@ -1,5 +1,6 @@
 import time
 import json
+import re
 from openai import OpenAI
 
 from app.config import (
@@ -67,7 +68,52 @@ def analyze_job_complete(job_description: str, resume: str) -> dict:
         tokens_used = response.usage.total_tokens
         execution_time = time.time() - start_time
         
-        result = json.loads(result_text)
+        # Логируем сырой ответ для отладки
+        logger.info(f"Raw LLM response (first 500 chars): {result_text[:500]}")
+        
+        # Пытаемся распарсить как JSON
+        try:
+            result = json.loads(result_text)
+        except json.JSONDecodeError as json_error:
+            # Если не удалось, возможно LLM использовал настоящие переносы вместо \\n
+            logger.warning(f"First JSON parse failed: {json_error}, trying to fix newlines")
+            logger.info(f"Problematic area: ...{result_text[max(0, json_error.pos-50):json_error.pos+50]}...")
+            
+            # Используем json.dumps для правильного экранирования строковых значений
+            # Но сначала нужно найти и зафиксировать проблемные строки
+            # Простой подход: заменяем только опасные control chars, сохраняя переносы как \\n
+            result_text_fixed = result_text
+            # Заменяем настоящие переносы на escaped версии
+            result_text_fixed = result_text_fixed.replace('\r\n', '\\n')  # Windows переносы
+            result_text_fixed = result_text_fixed.replace('\n', '\\n')    # Unix переносы  
+            result_text_fixed = result_text_fixed.replace('\r', '\\n')    # Mac переносы
+            result_text_fixed = result_text_fixed.replace('\t', ' ')      # Табы в пробелы
+            
+            logger.info(f"Fixed text (first 500 chars): {result_text_fixed[:500]}")
+            result = json.loads(result_text_fixed)
+        
+        # Исправляем тип has_visa_sponsorship - должен быть bool или None, не строка
+        visa_val = result.get("visa_sponsorship")
+        logger.info(f"Raw visa_sponsorship value: {visa_val}, type: {type(visa_val)}")
+        
+        # Нормализуем значение в Python bool или None
+        if visa_val is None or visa_val == "null" or visa_val == "None" or visa_val == "":
+            result["visa_sponsorship"] = None
+        elif visa_val is True or visa_val == "true" or visa_val == "True" or visa_val == 1:
+            result["visa_sponsorship"] = True
+        elif visa_val is False or visa_val == "false" or visa_val == "False" or visa_val == 0:
+            result["visa_sponsorship"] = False
+        else:
+            logger.warning(f"Unexpected visa_sponsorship value: {visa_val}, defaulting to None")
+            result["visa_sponsorship"] = None
+        
+        logger.info(f"Normalized visa_sponsorship: {result['visa_sponsorship']}, type: {type(result['visa_sponsorship'])}")
+        
+        # Логируем длину анализов для отладки
+        visa_analysis_len = len(result.get("visa_analysis", "")) if result.get("visa_analysis") else 0
+        match_analysis_len = len(result.get("match_analysis", "")) if result.get("match_analysis") else 0
+        logger.info(f"Analysis lengths - visa: {visa_analysis_len} chars, match: {match_analysis_len} chars")
+        logger.info(f"visa_analysis preview: {result.get('visa_analysis', '')[:200]}...")
         
         log_llm_call("analyze_job_complete", "success", execution_time, tokens_used)
         logger.info(f"LLM | analyze_job_complete | SUCCESS | {execution_time:.2f}s | {tokens_used} tokens")
@@ -105,156 +151,6 @@ def analyze_job_complete(job_description: str, resume: str) -> dict:
             "match_percentage": 0,
             "match_analysis": "Unable to analyze"
         }
-
-
-def extract_job_info(job_description: str) -> dict:
-    """Извлечение названия позиции и компании из описания вакансии"""
-    start_time = time.time()
-    
-    # Обрезаем длинный текст
-    if len(job_description) > MAX_JOB_DESCRIPTION_LENGTH:
-        job_description = job_description[:MAX_JOB_DESCRIPTION_LENGTH]
-        logger.info(f"Job description truncated to {MAX_JOB_DESCRIPTION_LENGTH} chars")
-    
-    try:
-        prompt = PROMPTS["extract_job_info"].format(job_description=job_description)
-        
-        response = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=OPENAI_TEMPERATURE,
-            max_tokens=OPENAI_MAX_TOKENS
-        )
-        
-        result_text = response.choices[0].message.content.strip()
-        tokens_used = response.usage.total_tokens
-        execution_time = time.time() - start_time
-        
-        # Парсим JSON ответ
-        result = json.loads(result_text)
-        
-        # Логируем успех
-        log_llm_call("extract_job_info", "success", execution_time, tokens_used)
-        logger.info(f"LLM | extract_job_info | SUCCESS | {execution_time:.2f}s | {tokens_used} tokens")
-        
-        return result
-        
-    except json.JSONDecodeError as e:
-        execution_time = time.time() - start_time
-        error_msg = f"JSON parsing error: {str(e)}"
-        
-        log_llm_call("extract_job_info", "error", execution_time, error_message=error_msg)
-        logger.error(f"LLM | extract_job_info | ERROR | {execution_time:.2f}s | {error_msg}")
-        
-        return {"title": "Unknown Position", "company": "Unknown Company"}
-
-
-def analyze_visa_sponsorship(job_description: str) -> dict:
-    """Анализ наличия visa sponsorship в описании вакансии"""
-    start_time = time.time()
-    
-    # Обрезаем длинный текст
-    if len(job_description) > MAX_JOB_DESCRIPTION_LENGTH:
-        job_description = job_description[:MAX_JOB_DESCRIPTION_LENGTH]
-        logger.info(f"Job description truncated to {MAX_JOB_DESCRIPTION_LENGTH} chars")
-    
-    try:
-        prompt = PROMPTS["visa_sponsorship"].format(job_description=job_description)
-        
-        response = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=OPENAI_TEMPERATURE,
-            max_tokens=OPENAI_MAX_TOKENS
-        )
-        
-        result_text = response.choices[0].message.content.strip()
-        tokens_used = response.usage.total_tokens
-        execution_time = time.time() - start_time
-        
-        # Парсим JSON ответ
-        result = json.loads(result_text)
-        
-        # Логируем успех
-        log_llm_call("analyze_visa_sponsorship", "success", execution_time, tokens_used)
-        logger.info(f"LLM | analyze_visa_sponsorship | SUCCESS | {execution_time:.2f}s | {tokens_used} tokens")
-        
-        return result
-        
-    except json.JSONDecodeError as e:
-        execution_time = time.time() - start_time
-        error_msg = f"JSON parsing error: {str(e)}"
-        
-        log_llm_call("analyze_visa_sponsorship", "error", execution_time, error_message=error_msg)
-        logger.error(f"LLM | analyze_visa_sponsorship | ERROR | {execution_time:.2f}s | {error_msg}")
-        
-        return {"has_sponsorship": None, "analysis": "Unable to determine"}
-        
-    except Exception as e:
-        execution_time = time.time() - start_time
-        error_msg = str(e)
-        
-        log_llm_call("analyze_visa_sponsorship", "error", execution_time, error_message=error_msg)
-        logger.error(f"LLM | analyze_visa_sponsorship | ERROR | {execution_time:.2f}s | {error_msg}")
-        
-        return {"has_sponsorship": None, "analysis": "Unable to determine"}
-
-
-def analyze_resume_match(resume: str, job_description: str) -> dict:
-    """Анализ соответствия резюме требованиям вакансии"""
-    start_time = time.time()
-    
-    # Обрезаем длинные тексты
-    if len(resume) > MAX_RESUME_LENGTH:
-        resume = resume[:MAX_RESUME_LENGTH]
-        logger.info(f"Resume truncated to {MAX_RESUME_LENGTH} chars")
-    if len(job_description) > MAX_JOB_DESCRIPTION_LENGTH:
-        job_description = job_description[:MAX_JOB_DESCRIPTION_LENGTH]
-        logger.info(f"Job description truncated to {MAX_JOB_DESCRIPTION_LENGTH} chars")
-    
-    try:
-        prompt = PROMPTS["resume_match"].format(
-            resume=resume,
-            job_description=job_description
-        )
-        
-        response = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=OPENAI_TEMPERATURE,
-            max_tokens=OPENAI_MAX_TOKENS
-        )
-        
-        result_text = response.choices[0].message.content.strip()
-        tokens_used = response.usage.total_tokens
-        execution_time = time.time() - start_time
-        
-        # Парсим JSON ответ
-        result = json.loads(result_text)
-        
-        # Логируем успех
-        log_llm_call("analyze_resume_match", "success", execution_time, tokens_used)
-        logger.info(f"LLM | analyze_resume_match | SUCCESS | {execution_time:.2f}s | {tokens_used} tokens")
-        
-        return result
-        
-    except json.JSONDecodeError as e:
-        execution_time = time.time() - start_time
-        error_msg = f"JSON parsing error: {str(e)}"
-        
-        log_llm_call("analyze_resume_match", "error", execution_time, error_message=error_msg)
-        logger.error(f"LLM | analyze_resume_match | ERROR | {execution_time:.2f}s | {error_msg}")
-        
-        return {"match_percentage": 0, "analysis": "Unable to analyze"}
-        
-    except Exception as e:
-        execution_time = time.time() - start_time
-        error_msg = str(e)
-        
-        log_llm_call("analyze_resume_match", "error", execution_time, error_message=error_msg)
-        logger.error(f"LLM | analyze_resume_match | ERROR | {execution_time:.2f}s | {error_msg}")
-        
-        return {"match_percentage": 0, "analysis": "Unable to analyze"}
 
 
 def generate_cover_letter(resume: str, template: str, job_description: str, 

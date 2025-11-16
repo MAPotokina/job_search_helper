@@ -60,14 +60,14 @@ function renderJobs(jobs) {
             <td>${escapeHtml(job.company)}</td>
             <td>
                 ${job.has_visa_sponsorship === true 
-                    ? '<span class="badge badge-yes">✓ Yes</span>' 
+                    ? '<div class="tooltip-wrapper"><span class="badge badge-yes">✓ Yes</span><span class="tooltip-text">' + escapeHtmlKeepNewlines(job.sponsorship_analysis || 'Visa sponsorship available') + '</span></div>'
                     : job.has_visa_sponsorship === false 
-                    ? '<span class="badge badge-no">✗ No</span>' 
-                    : '<span class="badge badge-na">N/A</span>'}
+                    ? '<div class="tooltip-wrapper"><span class="badge badge-no">✗ No</span><span class="tooltip-text">' + escapeHtmlKeepNewlines(job.sponsorship_analysis || 'No visa sponsorship') + '</span></div>'
+                    : '<div class="tooltip-wrapper"><span class="badge badge-na">N/A</span><span class="tooltip-text">' + escapeHtmlKeepNewlines(job.sponsorship_analysis || 'No information about visa sponsorship in job description') + '</span></div>'}
             </td>
             <td>
                 ${job.resume_match_percentage !== null
-                    ? '<span class="match-badge match-' + getMatchClass(job.resume_match_percentage) + '">' + job.resume_match_percentage + '%</span>'
+                    ? '<div class="tooltip-wrapper"><span class="match-badge match-' + getMatchClass(job.resume_match_percentage) + '">' + job.resume_match_percentage + '%</span><span class="tooltip-text">' + escapeHtmlKeepNewlines(job.match_analysis || 'Resume match analysis') + '</span></div>'
                     : '<span class="badge badge-na">N/A</span>'}
             </td>
             <td>
@@ -100,11 +100,24 @@ function formatDate(dateString) {
     });
 }
 
-// Экранирование HTML для безопасности
+// Экранирование HTML для безопасности, сохраняя переносы строк
 function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Для tooltip текста - сохраняем переносы строк
+function escapeHtmlKeepNewlines(text) {
+    if (!text) return '';
+    // Экранируем HTML, затем конвертируем переносы в <br>
+    const div = document.createElement('div');
+    div.textContent = text;
+    // Заменяем двойные переносы на параграфы, одинарные на <br>
+    return div.innerHTML
+        .replace(/\n\n+/g, '<br><br>')  // двойные переносы → двойной <br>
+        .replace(/\n/g, '<br>');          // одинарные → один <br>
 }
 
 // Создание нового job
@@ -257,6 +270,20 @@ window.onclick = function(event) {
         closeCoverLetterModal();
     }
 }
+
+// Динамическое позиционирование tooltips
+document.addEventListener('mouseover', function(e) {
+    const tooltipWrapper = e.target.closest('.tooltip-wrapper');
+    if (tooltipWrapper) {
+        const tooltip = tooltipWrapper.querySelector('.tooltip-text');
+        if (tooltip) {
+            const rect = tooltipWrapper.getBoundingClientRect();
+            tooltip.style.left = rect.left + (rect.width / 2) + 'px';
+            tooltip.style.top = (rect.top - 10) + 'px';
+            tooltip.style.transform = 'translate(-50%, -100%)';
+        }
+    }
+});
 
 // Загрузка jobs при старте страницы
 loadJobs();

@@ -1,50 +1,62 @@
-John Doe
-Senior Software Engineer
-Email: john.doe@email.com | Phone: +1-234-567-8900
+Summary
+MLOps Engineer with 6+ years of experience designing and maintaining scalable
+video-processing pipelines, orchestrating ML workloads, optimising compute and storage
+resources, and ensuring reliable deployment and monitoring. A strong cross-functional
+collaborator with a background in physics.
+Professional Experience
+MLOps Engineer
+Assaia – Zurich-based AI startup improving airport efficiency through computer vision
+March 2020 – Present
 
-SUMMARY
-Experienced software engineer with 5+ years in Python, JavaScript, and cloud technologies.
-Strong background in backend development, API design, and database optimization.
-Passionate about building scalable systems and mentoring junior developers.
-
-SKILLS
-- Languages: Python, JavaScript, TypeScript, SQL, Go
-- Frameworks: Django, FastAPI, Flask, React, Node.js, Express
-- Databases: PostgreSQL, MongoDB, Redis, MySQL
-- Cloud & DevOps: AWS (EC2, S3, Lambda), Docker, Kubernetes, CI/CD
-- Tools: Git, Linux, Nginx, REST APIs, GraphQL
-
-EXPERIENCE
-
-Senior Software Engineer | Tech Company Inc | 2021-Present
-- Developed and maintained RESTful APIs using Python/FastAPI serving 1M+ requests/day
-- Optimized database queries and indexing, improving performance by 40%
-- Led team of 3 junior developers, conducting code reviews and mentoring
-- Implemented CI/CD pipelines reducing deployment time by 60%
-- Migrated monolithic application to microservices architecture
-
-Software Engineer | Startup Inc | 2019-2021
-- Built microservices architecture using Python and Docker
-- Developed React-based admin dashboard for internal tools
-- Implemented authentication and authorization system using JWT
-- Worked closely with product team to deliver features on tight deadlines
-- Reduced API response time by 50% through caching and optimization
-
-Junior Developer | Web Agency | 2018-2019
-- Developed web applications using JavaScript and Node.js
-- Created responsive frontend using React and CSS
-- Collaborated with designers to implement pixel-perfect UI
-- Fixed bugs and improved code quality
-
-EDUCATION
-Bachelor of Science in Computer Science | State University | 2018
-GPA: 3.8/4.0
-
-CERTIFICATIONS
-- AWS Certified Solutions Architect
-- Python Professional Certificate
-
-LANGUAGES
-- English (Fluent)
-- Spanish (Intermediate)
-
+Designed and optimised video-based ML pipelines using Docker and Kubernetes, cutting
+storage usage by 50% while preserving processing times
+Designed and deployed a service operating in a real-time environment, from data ingestion to
+deployment
+Built and maintained CI/CD workflows with GitLab CI and Helm, enabling zero-downtime
+deployments and consistent rollbacks
+Implemented features for model validation and deployment
+Led adoption of MyPy type checking and coding standards to eliminate long-standing runtime
+issues, improving maintainability and developer efficiency
+Established a minimum baseline of 80% test coverage
+Introduced integration testing for key components of the ML pipeline
+Onboarded and mentored several junior developers
+Initiated and led a technical support workflow for cross-team issue triage, decreasing average
+resolution time from days to hours
+Tech Stack: Python, Docker, Kubernetes, Helm, NVIDIA Triton, GitLab CI, OpenCV, PostgreSQL,
+Redis, MongoDB, TensorFlow
+Data Engineer
+Sopra Steria – European IT consulting and digital transformation company
+March 2019 – March 2020
+Developed pipelines to clean, transform, and integrate data for ML applications
+Automated preprocessing scripts, reducing manual effort and error rates
+Integrated data solutions into ML pipelines, contributing to improved data accuracy and
+processing speed
+Tech Stack: Python, Pandas, NumPy
+Software Deployment Engineer
+Kentor / Sopra Steria – Enterprise software packaging and deployment services
+March 2015 – March 2019
+Created and maintained custom software deployment packages across large-scale
+enterprise environments using SCCM, improving delivery speed and consistency
+Automated application configuration and rollout processes across Windows and macOS
+systems, reducing manual intervention
+Collaborated with IT and DevOps teams to standardise deployment templates and testing
+procedures, reducing configuration errors and downtime
+Streamlined internal documentation and QA workflows, improving audit compliance and
+release predictability
+Onboarded and mentored two junior colleagues
+Tech Stack: SCCM, PowerShell, Windows Server, macOS
+Education
+B.Sc. in Physics – Specialisation in Plasma & High-Temperature Physics
+Peter the Great St. Petersburg Polytechnic University, Russia
+Graduated: June 2014
+Core Competencies
+Programming & Frameworks: Python, Django, OpenCV, Pillow
+MLOps & Infrastructure: Docker, Kubernetes, Helm, NVIDIA Triton
+DevOps & CI/CD: GitLab CI, Monitoring and Deployment Automation
+Databases & Storage: PostgreSQL, MongoDB, Redis
+Collaboration & Methodologies: Scrum, Kanban, Mentorship, Technical Documentation
+Languages: English (Fluent – IELTS 8), Russian (Native), German (Intermediate)
+Certifications
+IELTS General Training
+April 2025
+Overall Band Score: 8 (Listening: 9, Reading: 9, Writing: 7, Speaking: 7.5).
