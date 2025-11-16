@@ -20,7 +20,7 @@ function renderJobs(jobs) {
     const tbody = document.getElementById('jobsTableBody');
     
     if (jobs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No jobs yet. Add your first job above!</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No jobs yet. Add your first job above!</td></tr>';
         return;
     }
     
@@ -34,6 +34,11 @@ function renderJobs(jobs) {
                     : job.has_visa_sponsorship === false 
                     ? '<span class="badge badge-no">✗ No Visa</span>' 
                     : '<button onclick="checkSponsorship(' + job.id + ')" class="btn-check">Check Visa</button>'}
+            </td>
+            <td>
+                ${job.resume_match_percentage !== null
+                    ? '<span class="match-badge match-' + getMatchClass(job.resume_match_percentage) + '">' + job.resume_match_percentage + '%</span>'
+                    : '<button onclick="analyzeMatch(' + job.id + ')" class="btn-check">Analyze Match</button>'}
             </td>
             <td>
                 <select onchange="updateStatus(${job.id}, this.value)" class="status-${job.status}">
@@ -174,6 +179,13 @@ async function deleteJob(jobId) {
     }
 }
 
+// Функция для определения класса match badge
+function getMatchClass(percentage) {
+    if (percentage >= 70) return 'high';
+    if (percentage >= 40) return 'medium';
+    return 'low';
+}
+
 // Проверка visa sponsorship
 async function checkSponsorship(jobId) {
     try {
@@ -189,6 +201,25 @@ async function checkSponsorship(jobId) {
     } catch (error) {
         console.error('Error checking sponsorship:', error);
         alert('Error analyzing sponsorship');
+    }
+}
+
+// Анализ соответствия резюме
+async function analyzeMatch(jobId) {
+    try {
+        const response = await fetch(`/api/analyze-match/${jobId}`, {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            loadJobs();
+        } else {
+            const error = await response.json();
+            alert('Error analyzing match: ' + (error.detail || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error analyzing match:', error);
+        alert('Error analyzing match');
     }
 }
 

@@ -10,7 +10,7 @@
 | 3 | Frontend UI | ✅ Done | 2025-11-16 | ✅ |
 | 4 | LLM: Extract Job Info | ✅ Done | 2025-11-16 | ✅ |
 | 5 | LLM: Visa Sponsorship | ✅ Done | 2025-11-16 | ✅ |
-| 6 | LLM: Resume Match | ⏳ Pending | - | ❌ |
+| 6 | LLM: Resume Match | ✅ Done | 2025-11-16 | ✅ |
 | 7 | LLM: Cover Letter | ⏳ Pending | - | ❌ |
 | 8 | Statistics & Monitoring | ⏳ Pending | - | ❌ |
 | 9 | Polish & Production Ready | ⏳ Pending | - | ❌ |
@@ -174,12 +174,12 @@ curl -X PUT http://localhost:8000/api/jobs/1 \
 **Цель:** Анализ соответствия резюме вакансии
 
 ### Tasks
-- [ ] Создать `templates/user_resume.txt` с примером резюме
-- [ ] Добавить промпт `resume_match` в `prompts.py`
-- [ ] Добавить функцию `analyze_resume_match()` в `llm.py`
-- [ ] Создать endpoint `POST /api/analyze-match`
-- [ ] Добавить кнопку "Analyze Match" в UI
-- [ ] Показывать процент соответствия и объяснение
+- [x] Создать `templates/user_resume.txt` с примером резюме
+- [x] Добавить промпт `resume_match` в `prompts.py`
+- [x] Добавить функцию `analyze_resume_match()` в `llm.py`
+- [x] Создать endpoint `POST /api/analyze-match`
+- [x] Добавить кнопку "Analyze Match" в UI
+- [x] Показывать процент соответствия и объяснение
 
 ### Test
 ```bash

@@ -1,0 +1,50 @@
+John Doe
+Senior Software Engineer
+Email: john.doe@email.com | Phone: +1-234-567-8900
+
+SUMMARY
+Experienced software engineer with 5+ years in Python, JavaScript, and cloud technologies.
+Strong background in backend development, API design, and database optimization.
+Passionate about building scalable systems and mentoring junior developers.
+
+SKILLS
+- Languages: Python, JavaScript, TypeScript, SQL, Go
+- Frameworks: Django, FastAPI, Flask, React, Node.js, Express
+- Databases: PostgreSQL, MongoDB, Redis, MySQL
+- Cloud & DevOps: AWS (EC2, S3, Lambda), Docker, Kubernetes, CI/CD
+- Tools: Git, Linux, Nginx, REST APIs, GraphQL
+
+EXPERIENCE
+
+Senior Software Engineer | Tech Company Inc | 2021-Present
+- Developed and maintained RESTful APIs using Python/FastAPI serving 1M+ requests/day
+- Optimized database queries and indexing, improving performance by 40%
+- Led team of 3 junior developers, conducting code reviews and mentoring
+- Implemented CI/CD pipelines reducing deployment time by 60%
+- Migrated monolithic application to microservices architecture
+
+Software Engineer | Startup Inc | 2019-2021
+- Built microservices architecture using Python and Docker
+- Developed React-based admin dashboard for internal tools
+- Implemented authentication and authorization system using JWT
+- Worked closely with product team to deliver features on tight deadlines
+- Reduced API response time by 50% through caching and optimization
+
+Junior Developer | Web Agency | 2018-2019
+- Developed web applications using JavaScript and Node.js
+- Created responsive frontend using React and CSS
+- Collaborated with designers to implement pixel-perfect UI
+- Fixed bugs and improved code quality
+
+EDUCATION
+Bachelor of Science in Computer Science | State University | 2018
+GPA: 3.8/4.0
+
+CERTIFICATIONS
+- AWS Certified Solutions Architect
+- Python Professional Certificate
+
+LANGUAGES
+- English (Fluent)
+- Spanish (Intermediate)
+

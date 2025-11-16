@@ -194,3 +194,26 @@ button.btn-delete:hover {
     background: #5a6268;
 }
 
+.match-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.match-high {
+    background: #d4edda;
+    color: #155724;
+}
+
+.match-medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.match-low {
+    background: #f8d7da;
+    color: #721c24;
+}
+
