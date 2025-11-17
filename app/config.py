@@ -6,7 +6,7 @@ load_dotenv()
 
 # OpenAI API
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = "gpt-3.5-turbo"
+OPENAI_MODEL = "gpt-4o"  # GPT-4 Omni - latest model with better quality
 OPENAI_TEMPERATURE = 0.5  # Increased for more detailed analysis
 OPENAI_MAX_TOKENS = 3000
 OPENAI_TIMEOUT = 30
@@ -19,7 +19,9 @@ MAX_JOB_DESCRIPTION_LENGTH = 5000
 MAX_RESUME_LENGTH = 5000
 
 # Cost for statistics calculation
-COST_PER_1K_TOKENS = 0.002
+# GPT-4o: ~$0.0025/1K input + $0.01/1K output tokens
+# Using average estimate for mixed usage
+COST_PER_1K_TOKENS = 0.008
 
 # Logging configuration
 logging.basicConfig(

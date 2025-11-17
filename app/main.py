@@ -241,7 +241,7 @@ async def update_job(job_id: int, job_update: JobUpdate, db: Session = Depends(g
         if job_update.status in ["offer", "rejected"] and not job.response_date:
             job.response_date = datetime.now()
             if job.applied_date:
-                    job.days_to_response = (job.response_date - job.applied_date).days
+                job.days_to_response = (job.response_date - job.applied_date).days
                 logger.info(f"Job {job_id}: response_date and days_to_response set automatically")
     
     # Update fields
