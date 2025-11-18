@@ -1,4 +1,4 @@
-This is a small pet project following the AI Driven Development process using Cursor described [here](https://habr.com/ru/articles/941934/) to help keep track of my job applications and avoid companies explicitly stating that they do not hire from overseas.
+This is a small pet project following the AI Driven Development process using Cursor described [here](https://habr.com/ru/articles/941934/) to help keep track of job applications and avoid companies explicitly stating that they do not hire from overseas.
 
 # 🔍 Job Search Helper
 
